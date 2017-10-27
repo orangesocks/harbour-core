@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -53,12 +53,21 @@
    #endif
 #endif
 
+#include "hbapi.h"
 #include "hbwapi.h"
 #include "hbwinole.h"
 
 #if ! defined( HB_OS_WIN_CE )
-#include <olectl.h>
+#  if defined( _MSC_VER )
+#     pragma warning(push)
+#     pragma warning(disable:4201)  /* warning C4201: nonstandard extension used: nameless struct/union */
+#  endif
+#  include <olectl.h>
+#  if defined( _MSC_VER )
+#     pragma warning(pop)
+#  endif
 #endif
+
 #include <commctrl.h>
 #include <commdlg.h>
 #include <shellapi.h>
@@ -66,6 +75,7 @@
 #include "hbgtcore.h"
 #include "hbapicdp.h"
 #include "hbapierr.h"
+#include "hbapifs.h"
 #include "hbapiitm.h"
 #include "hbset.h"
 #include "hbinit.h"

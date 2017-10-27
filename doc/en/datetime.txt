@@ -67,7 +67,7 @@
    $EXAMPLES$
       ? CMonth( Date() )
       IF CMonth( Date() + 10 ) == "March"
-         ? "Have you done your system BACKUP?"
+         ? "Have you done your system backup?"
       ENDIF
    $STATUS$
       R
@@ -223,7 +223,7 @@
       of days; 86399 seconds represents one day, 0 seconds being midnight.
    $EXAMPLES$
       ? Days( 2434234 )
-      ? "Has been passed", Days( 63251 ), "since midnight"
+      ? Days( 63251 )
    $STATUS$
       R
    $COMPLIANCE$
@@ -434,12 +434,9 @@
       Note: new function available after 2017-02-08 19:36 UTC+0100 commit,
             not found in earlier versions.
    $EXAMPLES$
-      PROCEDURE Main()
-         LOCAL nYear, nDayOfWeek
-         ? hb_Week( 0d20170215, @nYear, @nDayOfWeek ), nYear, nDayOfWeek
-         // output: 7, 2017, 3
-         ? hb_Week( 0d00000000, @nYear, @nDayOfWeek ), nYear, nDayOfWeek
-         // output: 0, 0, 0
+      LOCAL nYear, nDayOfWeek
+      ? hb_Week( 0d20170215, @nYear, @nDayOfWeek ), nYear, nDayOfWeek  // --> 7, 2017, 3
+      ? hb_Week( 0d00000000, @nYear, @nDayOfWeek ), nYear, nDayOfWeek  // --> 0, 0, 0
    $STATUS$
       R
    $COMPLIANCE$
@@ -633,7 +630,7 @@
       is an empty date expression, in which case it will be zero.
    $EXAMPLES$
       ? Year( Date() )
-      ? Year( hb_SToD( "32510125" ) )
+      ? Year( 0d32510125 )
    $STATUS$
       R
    $COMPLIANCE$
@@ -644,5 +641,51 @@
       Library is core
    $SEEALSO$
       Day(), Month()
+   $END$
+ */
+
+/* $DOC$
+   $AUTHOR$
+
+   $TEMPLATE$
+      Function
+   $NAME$
+      hb_DToT()
+   $CATEGORY$
+      API
+   $SUBCATEGORY$
+      Date/Time
+   $ONELINER$
+      Create a <tDateTime> value from a <dDate> parameter
+   $SYNTAX$
+      hb_DToT( <dDate> [, <cTime|nSeconds>] ) --> <tDateTime>
+   $ARGUMENTS$
+      <dDate> Any valid date expression.
+
+      Optional: <cTime|nSeconds> representing a time of the day value.
+      <cTime> is a string in a valid time format: "hh:mm:ss.nnn".
+      <nSeconds> is a numeric value in seconds in the range from
+      0 to 86399.999~ ( 60 secs * 60 mins * 24 hours - 1 millisecond )
+   $RETURNS$
+      <tDateTime> a dateTime value
+   $DESCRIPTION$
+      This function returns a <tDateTime> value from a <dDate> value.
+      Optionally, a second parameter with the time of the day value
+      can be provided which can be represented by either of a string
+      time value or a numeric value in seconds.
+   $EXAMPLES$
+      ? hb_DToT( Date() )  // a dateTime with a empty time part
+      ? hb_DToT( Date(), "14:30:00.500" )  // a dateTime with time part 14:30pm with 500 milliseconds
+      ? hb_DToT( Date(), 3600 )  // a dateTime with time part 1:00am (one hour)
+   $STATUS$
+      R
+   $COMPLIANCE$
+      H
+   $PLATFORMS$
+      All
+   $FILES$
+      Library is core
+   $SEEALSO$
+      Date()
    $END$
  */

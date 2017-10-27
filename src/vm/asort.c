@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -53,6 +53,7 @@
          https://www.cs.auckland.ac.nz/~jmor159/PLDS210/niemann/s_man.htm */
 
 #include "hbvmint.h"
+#include "hbapi.h"
 #include "hbapiitm.h"
 #include "hbvm.h"
 
@@ -91,7 +92,7 @@ static HB_BOOL hb_itemIsLess( PHB_BASEARRAY pBaseArray, PHB_ITEM pBlock,
       return hb_itemStrCmp( pItem1, pItem2, HB_FALSE ) < 0;
    else if( HB_IS_NUMINT( pItem1 ) && HB_IS_NUMINT( pItem2 ) )
       /* intentionally separate comparison for integer numbers
-         to avoid precision lose in 64bit integer to double conversion */
+         to avoid precision lose in 64-bit integer to double conversion */
       return hb_itemGetNInt( pItem1 ) < hb_itemGetNInt( pItem2 );
    else if( HB_IS_NUMERIC( pItem1 ) && HB_IS_NUMERIC( pItem2 ) )
       return hb_itemGetND( pItem1 ) < hb_itemGetND( pItem2 );
@@ -104,7 +105,7 @@ static HB_BOOL hb_itemIsLess( PHB_BASEARRAY pBaseArray, PHB_ITEM pBlock,
       return lDate1 == lDate2 ? lTime1 < lTime2 : lDate1 < lDate2;
    }
    else if( HB_IS_DATETIME( pItem1 ) && HB_IS_DATETIME( pItem2 ) )
-      /* it's not exact comparison, compare only julian date */
+      /* it's not exact comparison, compare only Julian date */
       return hb_itemGetDL( pItem1 ) < hb_itemGetDL( pItem2 );
    else if( HB_IS_LOGICAL( pItem1 ) && HB_IS_LOGICAL( pItem2 ) )
       return hb_itemGetL( pItem1 ) < hb_itemGetL( pItem2 );

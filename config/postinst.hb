@@ -18,9 +18,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA (or visit
- * their website at https://www.gnu.org/).
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (or visit their website at https://www.gnu.org/licenses/).
  *
  */
 
@@ -110,6 +110,7 @@ PROCEDURE Main( ... )
                mk_hb_vfCopyFile( "LICENSE.txt", tmp + hb_ps(), .T.,, .T. )
                mk_hb_vfCopyFile( ".github/CONTRIBUTING.md", tmp + hb_ps(), .T.,, .T. )
                mk_hb_vfCopyFile( "README.md", tmp + hb_ps(), .T.,, .T. )
+               mk_hb_vfCopyFile( "CODE_OF_CONDUCT.md", tmp + hb_ps(), .T.,, .T. )
             ELSE
                OutStd( hb_StrFormat( "! Error: Cannot create directory '%1$s'", tmp ) + hb_eol() )
             ENDIF
@@ -184,8 +185,12 @@ PROCEDURE Main( ... )
          cDynVersionComp := GetEnvC( "HB_DYNLIB_PREF" ) + GetEnvC( "HB_DYNLIB_BASE" ) + GetEnvC( "HB_DYNLIB_POSC" ) + GetEnvC( "HB_DYNLIB_EXT" ) + GetEnvC( "HB_DYNLIB_PEXC" )
          cDynVersionless := GetEnvC( "HB_DYNLIB_PREF" ) + GetEnvC( "HB_DYNLIB_BASE" )                               + GetEnvC( "HB_DYNLIB_EXT" )
 
-         mk_hb_vfLinkSym( cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) ) + hb_ps() + cDynVersionComp )
-         mk_hb_vfLinkSym( cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) ) + hb_ps() + cDynVersionless )
+         IF ! cDynVersionFull == cDynVersionComp
+            mk_hb_vfLinkSym( cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) ) + hb_ps() + cDynVersionComp )
+         ENDIF
+         IF ! cDynVersionFull == cDynVersionless
+            mk_hb_vfLinkSym( cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) ) + hb_ps() + cDynVersionless )
+         ENDIF
 
          DO CASE
          CASE hb_RightEq( GetEnvC( "HB_INSTALL_DYN" ), "/usr/lib/harbour" ) .OR. ;
@@ -193,8 +198,12 @@ PROCEDURE Main( ... )
               hb_RightEq( GetEnvC( "HB_INSTALL_DYN" ), "/usr/local/lib/harbour" ) .OR. ;
               hb_RightEq( GetEnvC( "HB_INSTALL_DYN" ), "/usr/local/lib64/harbour" )
 
-            mk_hb_vfLinkSym( "harbour" + hb_ps() + cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) + "/../" ) + cDynVersionless )
-            mk_hb_vfLinkSym( "harbour" + hb_ps() + cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) + "/../" ) + cDynVersionComp )
+            IF ! cDynVersionFull == cDynVersionless
+               mk_hb_vfLinkSym( "harbour" + hb_ps() + cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) + "/../" ) + cDynVersionless )
+            ENDIF
+            IF ! cDynVersionFull == cDynVersionComp
+               mk_hb_vfLinkSym( "harbour" + hb_ps() + cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) + "/../" ) + cDynVersionComp )
+            ENDIF
             mk_hb_vfLinkSym( "harbour" + hb_ps() + cDynVersionFull, hb_DirSepToOS( GetEnvC( "HB_INSTALL_DYN" ) + "/../" ) + cDynVersionFull )
 
          CASE GetEnvC( "HB_INSTALL_DYN" ) == "/usr/local/harbour/lib"
@@ -272,7 +281,7 @@ PROCEDURE Main( ... )
             ELSEIF Empty( query_stdout( "tar --version" ) )
                cBin_Tar := ""
             ELSEIF "bsdtar" $ query_stdout( "tar --version" )
-               /* tar is mapped to bsdtar starting macOS 10.6 */
+               /* tar is mapped to bsdtar starting Mac OS X 10.6 */
                lGNU_Tar := .F.
             ENDIF
 
@@ -628,7 +637,6 @@ STATIC FUNCTION unix_name()
    DO CASE
    CASE GetEnvC( "HB_PLATFORM" ) == "dos" ; RETURN "djgpp"
    CASE GetEnvC( "HB_PLATFORM" ) == "win" ; RETURN GetEnvC( "HB_COMPILER" )
-   CASE ! Empty( tmp := query_rpm( "mandriva-release" , "mdv" ) ) ; RETURN tmp
    CASE ! Empty( tmp := query_rpm( "fedora-release"   , "fc"  ) ) ; RETURN tmp
    CASE ! Empty( tmp := query_rpm( "epel-release"     , "el"  ) ) ; RETURN tmp
    CASE ! Empty( tmp := query_rpm( "centos-release"   , "el"  ) ) ; RETURN tmp
@@ -684,13 +692,15 @@ STATIC FUNCTION GetEnvC( cEnvVar )
 
    RETURN s_hEnvCache[ cEnvVar ] := GetEnv( cEnvVar )
 
-STATIC PROCEDURE mk_hbr( cDestDir )
+STATIC FUNCTION mk_hbr( cDestDir )
 
    LOCAL hAll := { => }
 
    LOCAL cDir := "contrib" + hb_ps()
    LOCAL aFile
    LOCAL cFileName
+
+   LOCAL cOutput, cEOL
 
    FOR EACH aFile IN ASort( hb_vfDirectory( cDir + hb_osFileMask(), "D" ),,, {| tmp1, tmp2 | tmp1[ F_NAME ] < tmp2[ F_NAME ] } )
       IF aFile[ F_NAME ] == "." .OR. aFile[ F_NAME ] == ".."
@@ -701,9 +711,15 @@ STATIC PROCEDURE mk_hbr( cDestDir )
       ENDIF
    NEXT
 
-   mk_hb_MemoWrit( hb_DirSepAdd( cDestDir ) + "contrib.hbr", hb_Serialize( hAll, HB_SERIALIZE_COMPRESS ) )
+#if 0
+   cOutput := hb_Serialize( hAll, HB_SERIALIZE_COMPRESS )
+#else
+   cEOL := Set( _SET_EOL, Chr( 10 ) )
+   cOutput := hb_jsonEncode( hAll, .T. )
+   Set( _SET_EOL, cEOL )
+#endif
 
-   RETURN
+   RETURN mk_hb_MemoWrit( hb_DirSepAdd( cDestDir ) + "contrib.hbr", cOutput )
 
 STATIC FUNCTION LoadHBX( cFileName, hAll )
 
@@ -758,7 +774,9 @@ STATIC FUNCTION __hb_extern_get_list( cInputName )
 
    /* NOTE: non-gcc extractor configs don't support dynamic libs as input. */
    DO CASE
-   CASE "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|gcc|mingw|mingw64|djgpp|"
+   CASE "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|clang|clang64|" .AND. ! GetEnv( "HB_PLATFORM" ) == "darwin"
+      cCommand := "llvm-nm -g --defined-only -C {I}"
+   CASE "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|gcc|mingw|mingw64|clang|djgpp|"
       cCommand := "nm -g" + iif( GetEnv( "HB_PLATFORM" ) == "darwin", "", " --defined-only -C" ) + " {I}"
    CASE "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|msvc|msvc64|pocc|pocc64|"
       IF "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|msvc|msvc64|"
@@ -800,7 +818,7 @@ STATIC FUNCTION __hb_extern_get_list( cInputName )
                aExtern := {}
                hExtern := { => }
                FOR EACH tmp IN aResult
-                  tmp[ 2 ] := hb_asciiUpper( tmp[ 2 ] )
+                  tmp[ 2 ] := hb_asciiLower( tmp[ 2 ] )
                   IF ! tmp[ 2 ] $ hExtern
                      AAdd( aExtern, tmp[ 2 ] )
                      hExtern[ tmp[ 2 ] ] := NIL
@@ -944,8 +962,8 @@ STATIC FUNCTION __hb_extern_gen( aFuncList, cOutputName )
       NEXT
    ENDIF
    FOR EACH tmp IN aExtern
-      IF ! hb_WildMatch( "HB_GT_*_DEFAULT", tmp, .T. ) .AND. ;
-         ! hb_WildMatch( _HB_SELF_PREFIX + "*" + _HB_SELF_SUFFIX, tmp, .T. ) .AND. ;
+      IF ! hb_WildMatchI( "HB_GT_*_DEFAULT", tmp, .T. ) .AND. ;
+         ! hb_WildMatchI( _HB_SELF_PREFIX + "*" + _HB_SELF_SUFFIX, tmp, .T. ) .AND. ;
          AScan( aExclude, {| flt | hb_WildMatchI( flt, tmp, .T. ) } ) == 0
          cExtern += "DYNAMIC " + hb_HGetDef( hDynamic, tmp, tmp ) + cEOL
       ENDIF

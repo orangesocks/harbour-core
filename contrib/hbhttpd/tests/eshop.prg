@@ -125,7 +125,7 @@ PROCEDURE Main()
       ? "Certificate and/or private key missing."
       ? "Create them by running ./mkcert.sh"
       ?
-      ? "WARNING: Continuing with unsecure/cleartext communication."
+      ? "WARNING: Continuing with insecure/cleartext communication."
       ?
    ENDIF
 
@@ -312,7 +312,7 @@ STATIC FUNCTION proc_account_edit()
 
    cName := users->NAME
    IF "formdata_account/edit" $ session
-      cName := session[ "formdata_account/edit", "name" ]
+      cName := session[ "formdata_account/edit" ][ "name" ]
    ENDIF
    IF server[ "REQUEST_METHOD" ] == "POST"
       cName := hb_HGetDef( post, "name", "" )
@@ -361,8 +361,8 @@ STATIC FUNCTION proc_register()
    cUser := ""
    cName := ""
    IF "formdata_register" $ session
-      cUser := session[ "formdata_register", "user" ]
-      cName := session[ "formdata_register", "name" ]
+      cUser := session[ "formdata_register" ][ "user" ]
+      cName := session[ "formdata_register" ][ "name" ]
    ENDIF
    IF server[ "REQUEST_METHOD" ] == "POST"
       dbUseArea( .T., , "users", "users", .T., .F. )

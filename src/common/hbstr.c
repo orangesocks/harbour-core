@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -178,31 +178,31 @@ char * hb_strdup( const char * pszText )
 char * hb_strndup( const char * pszText, HB_SIZE nLen )
 {
    char * pszDup;
-   HB_SIZE ul;
+   HB_SIZE nPos;
 
    HB_TRACE( HB_TR_DEBUG, ( "hb_strndup(%.*s, %" HB_PFS "d)", ( int ) nLen, pszText, nLen ) );
 
-   ul = 0;
-   while( nLen-- && pszText[ ul ] )
-      ++ul;
+   nPos = 0;
+   while( nLen-- && pszText[ nPos ] )
+      ++nPos;
 
-   pszDup = ( char * ) hb_xgrab( ul + 1 );
-   memcpy( pszDup, pszText, ul );
-   pszDup[ ul ] = '\0';
+   pszDup = ( char * ) hb_xgrab( nPos + 1 );
+   memcpy( pszDup, pszText, nPos );
+   pszDup[ nPos ] = '\0';
 
    return pszDup;
 }
 
 HB_SIZE hb_strnlen( const char * pszText, HB_SIZE nLen )
 {
-   HB_SIZE ul = 0;
+   HB_SIZE nPos = 0;
 
    HB_TRACE( HB_TR_DEBUG, ( "hb_strnlen(%.*s, %" HB_PFS "d)", ( int ) nLen, pszText, nLen ) );
 
    while( nLen-- && *pszText++ )
-      ++ul;
+      ++nPos;
 
-   return ul;
+   return nPos;
 }
 
 char * hb_strduptrim( const char * pszText )
@@ -228,20 +228,20 @@ char * hb_strduptrim( const char * pszText )
 
 HB_SIZE hb_strlentrim( const char * pszText )
 {
-   HB_SIZE ul = 0;
+   HB_SIZE nPos = 0;
 
    HB_TRACE( HB_TR_DEBUG, ( "hb_strlentrim(%s)", pszText ) );
 
    while( pszText[ 0 ] == ' ' )
       ++pszText;
 
-   while( pszText[ ul ] )
-      ++ul;
+   while( pszText[ nPos ] )
+      ++nPos;
 
-   while( ul && pszText[ ul - 1 ] == ' ' )
-      --ul;
+   while( nPos && pszText[ nPos - 1 ] == ' ' )
+      --nPos;
 
-   return ul;
+   return nPos;
 }
 
 int hb_stricmp( const char * s1, const char * s2 )
@@ -371,16 +371,16 @@ char * hb_xstrcpy( char * szDest, const char * szSrc, ... )
 
 static double hb_numPow10( int nPrecision )
 {
-   static const double s_dPow10[ 16 ] = { 1.0,                  /*  0 */
-                                          10.0,                 /*  1 */
-                                          100.0,                /*  2 */
-                                          1000.0,               /*  3 */
-                                          10000.0,              /*  4 */
-                                          100000.0,             /*  5 */
-                                          1000000.0,            /*  6 */
-                                          10000000.0,           /*  7 */
-                                          100000000.0,          /*  8 */
-                                          1000000000.0,         /*  9 */
+   static const double s_dPow10[ 16 ] = { 1.0,                  /* 0 */
+                                          10.0,                 /* 1 */
+                                          100.0,                /* 2 */
+                                          1000.0,               /* 3 */
+                                          10000.0,              /* 4 */
+                                          100000.0,             /* 5 */
+                                          1000000.0,            /* 6 */
+                                          10000000.0,           /* 7 */
+                                          100000000.0,          /* 8 */
+                                          1000000000.0,         /* 9 */
                                           10000000000.0,        /* 10 */
                                           100000000000.0,       /* 11 */
                                           1000000000000.0,      /* 12 */
@@ -431,7 +431,7 @@ double hb_numRound( double dNum, int iDec )
  * numbers so we can decrease the precision to 15 digits and use
  * the cut part for proper rounding. It should resolve
  * most of problems. But if someone totally  not understand FL
- * and will try to convert big matrix or sth like that it's quite
+ * and will try to convert big matrix or something like that it's quite
  * possible that he chose one of the natural school algorithm which
  * works nice with real numbers but can give very bad results in FL.
  * In such case it could be good to decrease precision even more.
@@ -508,7 +508,7 @@ double hb_numRound( double dNum, int iDec )
 
    ( void ) modf( doComplete5, &doComplete5i );
 
-#if defined( __XCC__ ) || defined( __POCC__ )
+#if defined( __POCC__ )
    if( iDec < 16 )
    {
       if( iDec >= 0 )
@@ -680,7 +680,7 @@ static HB_BOOL hb_str2number( HB_BOOL fPCode, const char * szNum, HB_SIZE nLen, 
    }
    if( iDec )
    {
-#if defined( __XCC__ ) || defined( __POCC__ )
+#if defined( __POCC__ )
       if( iDec < 16 )
          *dVal /= ( HB_LONGLONG ) hb_numPow10( iDec );
       else
@@ -1098,27 +1098,27 @@ char * hb_strncpyTrim( char * pDest, const char * pSource, HB_SIZE nLen )
 
 char * hb_strRemEscSeq( char * str, HB_SIZE * pnLen )
 {
-   HB_SIZE ul = *pnLen, nStripped = 0;
+   HB_SIZE nPos = *pnLen, nStripped = 0;
    char * ptr, * dst;
 
    ptr = dst = str;
-   while( ul )
+   while( nPos )
    {
       if( *ptr == '\\' )
          break;
       ++ptr; ++dst;
-      --ul;
+      --nPos;
    }
 
-   while( ul-- )
+   while( nPos-- )
    {
       char ch = *ptr++;
       if( ch == '\\' )
       {
          ++nStripped;
-         if( ul )
+         if( nPos )
          {
-            ul--;
+            nPos--;
             ch = *ptr++;
             switch( ch )
             {
@@ -1152,21 +1152,21 @@ char * hb_strRemEscSeq( char * str, HB_SIZE * pnLen )
                case '6':
                case '7':
                   ch -= '0';
-                  if( ul && *ptr >= '0' && *ptr <= '7' )
+                  if( nPos && *ptr >= '0' && *ptr <= '7' )
                   {
                      ch = ( ch << 3 ) | ( *ptr++ - '0' );
                      ++nStripped;
-                     if( --ul && *ptr >= '0' && *ptr <= '7' )
+                     if( --nPos && *ptr >= '0' && *ptr <= '7' )
                      {
                         ch = ( ch << 3 ) | ( *ptr++ - '0' );
                         ++nStripped;
-                        --ul;
+                        --nPos;
                      }
                   }
                   break;
                case 'x':
                   ch = 0;
-                  while( ul )
+                  while( nPos )
                   {
                      if( *ptr >= '0' && *ptr <= '9' )
                         ch = ( ch << 4 ) | ( *ptr++ - '0' );
@@ -1177,7 +1177,7 @@ char * hb_strRemEscSeq( char * str, HB_SIZE * pnLen )
                      else
                         break;
                      ++nStripped;
-                     --ul;
+                     --nPos;
                   }
                   break;
                case '\\':
@@ -1208,9 +1208,9 @@ char * hb_compEncodeString( int iMethod, const char * szText, HB_SIZE * pnLen )
    pBuffer[ *pnLen ] = '\0';
    if( iMethod == 1 )
    {
-      HB_SIZE ul;
-      for( ul = 0; ul < *pnLen; ul++ )
-         pBuffer[ ul ] ^= 0xF3;
+      HB_SIZE nPos;
+      for( nPos = 0; nPos < *pnLen; nPos++ )
+         pBuffer[ nPos ] ^= 0xF3;
    }
    return pBuffer;
 }
@@ -1223,9 +1223,9 @@ char * hb_compDecodeString( int iMethod, const char * szText, HB_SIZE * pnLen )
    pBuffer[ *pnLen ] = '\0';
    if( iMethod == 1 )
    {
-      HB_SIZE ul;
-      for( ul = 0; ul < *pnLen; ul++ )
-         pBuffer[ ul ] ^= 0xF3;
+      HB_SIZE nPos;
+      for( nPos = 0; nPos < *pnLen; nPos++ )
+         pBuffer[ nPos ] ^= 0xF3;
    }
    return pBuffer;
 }

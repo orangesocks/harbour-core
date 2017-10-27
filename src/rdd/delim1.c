@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -67,7 +67,7 @@ static void hb_delimInitArea( DELIMAREAP pArea, char * szFileName )
 {
    const char * szEol;
 
-   /* Allocate only after succesfully open file */
+   /* Allocate only after successfully open file */
    pArea->szFileName = hb_strdup( szFileName );
 
    /* set line separator: EOL */
@@ -1078,8 +1078,8 @@ static HB_ERRCODE hb_delimInfo( DELIMAREAP pArea, HB_USHORT uiIndex, PHB_ITEM pI
          /*
           * a small trick which allow to set character field delimiter and
           * field separator in COPY TO ... and APPEND FROM ... commands as
-          * array. F.e.:
-          *    COPY TO test DELIMITED WITH ({"","|"})
+          * array. e.g.:
+          *    COPY TO test DELIMITED WITH ({"", "|"})
           */
 #ifndef HB_CLP_STRICT
          else if( hb_itemType( pItem ) & HB_IT_ARRAY )

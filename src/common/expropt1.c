@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -84,7 +84,7 @@ static const char * s_OperTable[ HB_EXPR_COUNT ] = {
    "",         /* variable */
    "++",       /* post-operators -> lowest precedence */
    "--",
-   ":=",       /* assigments */
+   ":=",       /* assignments */
    "+=",
    "-=",
    "*=",
@@ -119,64 +119,64 @@ static const char * s_OperTable[ HB_EXPR_COUNT ] = {
  *    HB_ET_NONE is used for invalid syntax, e.g. var := var1 += 2
  */
 static const HB_BYTE s_PrecedTable[ HB_EXPR_COUNT ] = {
-   HB_ET_NIL,                 /*   HB_ET_NONE = 0,    */
-   HB_ET_NIL,                 /*   HB_ET_NIL,         */
-   HB_ET_NIL,                 /*   HB_ET_NUMERIC,     */
-   HB_ET_NIL,                 /*   HB_ET_DATE,        */
-   HB_ET_NIL,                 /*   HB_ET_TIMESTAMP,   */
-   HB_ET_NIL,                 /*   HB_ET_STRING,      */
-   HB_ET_NIL,                 /*   HB_ET_CODEBLOCK,   */
-   HB_ET_NIL,                 /*   HB_ET_LOGICAL,     */
-   HB_ET_NIL,                 /*   HB_ET_SELF,        */
-   HB_ET_NIL,                 /*   HB_ET_ARRAY,       */
-   HB_ET_NIL,                 /*   HB_ET_HASH,        */
-   HB_ET_NIL,                 /*   HB_ET_FUNREF,      */
-   HB_ET_NIL,                 /*   HB_ET_VARREF,      */
-   HB_ET_NIL,                 /*   HB_ET_REFERENCE,   */
-   HB_ET_NIL,                 /*   HB_ET_IIF,         */
-   HB_ET_NIL,                 /*   HB_ET_LIST,        */
-   HB_ET_NIL,                 /*   HB_ET_ARGLIST,     */
-   HB_ET_NIL,                 /*   HB_ET_MACROARGLIST,*/
-   HB_ET_NIL,                 /*   HB_ET_ARRAYAT,     */
-   HB_ET_NIL,                 /*   HB_ET_MACRO,       */
-   HB_ET_NIL,                 /*   HB_ET_FUNCALL,     */
-   HB_ET_NIL,                 /*   HB_ET_ALIASVAR,    */
-   HB_ET_NIL,                 /*   HB_ET_ALIASEXPR,   */
-   HB_ET_NIL,                 /*   HB_ET_SETGET,      */
-   HB_ET_NIL,                 /*   HB_ET_SEND,        */
-   HB_ET_NIL,                 /*   HB_ET_FUNNAME,     */
-   HB_ET_NIL,                 /*   HB_ET_ALIAS,       */
-   HB_ET_NIL,                 /*   HB_ET_RTVARIABLE,  */
-   HB_ET_NIL,                 /*   HB_ET_VARIABLE,    */
-   HB_ET_NIL,                 /*   HB_EO_POSTINC,     post-operators */
-   HB_ET_NIL,                 /*   HB_EO_POSTDEC,     */
-   HB_ET_NONE,                /*   HB_EO_ASSIGN,      assigments */
-   HB_ET_NONE,                /*   HB_EO_PLUSEQ,      Invalid syntax */
-   HB_ET_NONE,                /*   HB_EO_MINUSEQ,     */
-   HB_ET_NONE,                /*   HB_EO_MULTEQ,      */
-   HB_ET_NONE,                /*   HB_EO_DIVEQ,       */
-   HB_ET_NONE,                /*   HB_EO_MODEQ,       */
-   HB_ET_NONE,                /*   HB_EO_EXPEQ,       */
-   HB_EO_OR,                  /*   HB_EO_OR,          logical operators */
-   HB_EO_AND,                 /*   HB_EO_AND,         */
-   HB_ET_NIL,                 /*   HB_EO_NOT,         */
-   HB_EO_EQUAL,               /*   HB_EO_EQUAL,       relational operators */
-   HB_EO_EQUAL,               /*   HB_EO_EQ,          */
-   HB_EO_EQUAL,               /*   HB_EO_NE,          */
-   HB_EO_LT,                  /*   HB_EO_IN,          */
-   HB_EO_LT,                  /*   HB_EO_LT,          */
-   HB_EO_LT,                  /*   HB_EO_GT,          */
-   HB_EO_LT,                  /*   HB_EO_LE,          */
-   HB_EO_LT,                  /*   HB_EO_GE,          */
-   HB_EO_PLUS,                /*   HB_EO_PLUS,        addition */
-   HB_EO_PLUS,                /*   HB_EO_MINUS,       */
-   HB_EO_MULT,                /*   HB_EO_MULT,        multiple */
-   HB_EO_MULT,                /*   HB_EO_DIV,         */
-   HB_EO_MULT,                /*   HB_EO_MOD,         */
-   HB_EO_POWER,               /*   HB_EO_POWER,       */
-   HB_ET_NIL,                 /*   HB_EO_NEGATE,      sign operator */
-   HB_ET_NIL,                 /*   HB_EO_PREINC,      */
-   HB_ET_NIL                  /*   HB_EO_PREDEC,      pre-operators */
+   HB_ET_NIL,                 /* HB_ET_NONE = 0,    */
+   HB_ET_NIL,                 /* HB_ET_NIL,         */
+   HB_ET_NIL,                 /* HB_ET_NUMERIC,     */
+   HB_ET_NIL,                 /* HB_ET_DATE,        */
+   HB_ET_NIL,                 /* HB_ET_TIMESTAMP,   */
+   HB_ET_NIL,                 /* HB_ET_STRING,      */
+   HB_ET_NIL,                 /* HB_ET_CODEBLOCK,   */
+   HB_ET_NIL,                 /* HB_ET_LOGICAL,     */
+   HB_ET_NIL,                 /* HB_ET_SELF,        */
+   HB_ET_NIL,                 /* HB_ET_ARRAY,       */
+   HB_ET_NIL,                 /* HB_ET_HASH,        */
+   HB_ET_NIL,                 /* HB_ET_FUNREF,      */
+   HB_ET_NIL,                 /* HB_ET_VARREF,      */
+   HB_ET_NIL,                 /* HB_ET_REFERENCE,   */
+   HB_ET_NIL,                 /* HB_ET_IIF,         */
+   HB_ET_NIL,                 /* HB_ET_LIST,        */
+   HB_ET_NIL,                 /* HB_ET_ARGLIST,     */
+   HB_ET_NIL,                 /* HB_ET_MACROARGLIST,*/
+   HB_ET_NIL,                 /* HB_ET_ARRAYAT,     */
+   HB_ET_NIL,                 /* HB_ET_MACRO,       */
+   HB_ET_NIL,                 /* HB_ET_FUNCALL,     */
+   HB_ET_NIL,                 /* HB_ET_ALIASVAR,    */
+   HB_ET_NIL,                 /* HB_ET_ALIASEXPR,   */
+   HB_ET_NIL,                 /* HB_ET_SETGET,      */
+   HB_ET_NIL,                 /* HB_ET_SEND,        */
+   HB_ET_NIL,                 /* HB_ET_FUNNAME,     */
+   HB_ET_NIL,                 /* HB_ET_ALIAS,       */
+   HB_ET_NIL,                 /* HB_ET_RTVARIABLE,  */
+   HB_ET_NIL,                 /* HB_ET_VARIABLE,    */
+   HB_ET_NIL,                 /* HB_EO_POSTINC,     post-operators */
+   HB_ET_NIL,                 /* HB_EO_POSTDEC,     */
+   HB_ET_NONE,                /* HB_EO_ASSIGN,      assignments */
+   HB_ET_NONE,                /* HB_EO_PLUSEQ,      Invalid syntax */
+   HB_ET_NONE,                /* HB_EO_MINUSEQ,     */
+   HB_ET_NONE,                /* HB_EO_MULTEQ,      */
+   HB_ET_NONE,                /* HB_EO_DIVEQ,       */
+   HB_ET_NONE,                /* HB_EO_MODEQ,       */
+   HB_ET_NONE,                /* HB_EO_EXPEQ,       */
+   HB_EO_OR,                  /* HB_EO_OR,          logical operators */
+   HB_EO_AND,                 /* HB_EO_AND,         */
+   HB_ET_NIL,                 /* HB_EO_NOT,         */
+   HB_EO_EQUAL,               /* HB_EO_EQUAL,       relational operators */
+   HB_EO_EQUAL,               /* HB_EO_EQ,          */
+   HB_EO_EQUAL,               /* HB_EO_NE,          */
+   HB_EO_LT,                  /* HB_EO_IN,          */
+   HB_EO_LT,                  /* HB_EO_LT,          */
+   HB_EO_LT,                  /* HB_EO_GT,          */
+   HB_EO_LT,                  /* HB_EO_LE,          */
+   HB_EO_LT,                  /* HB_EO_GE,          */
+   HB_EO_PLUS,                /* HB_EO_PLUS,        addition */
+   HB_EO_PLUS,                /* HB_EO_MINUS,       */
+   HB_EO_MULT,                /* HB_EO_MULT,        multiple */
+   HB_EO_MULT,                /* HB_EO_DIV,         */
+   HB_EO_MULT,                /* HB_EO_MOD,         */
+   HB_EO_POWER,               /* HB_EO_POWER,       */
+   HB_ET_NIL,                 /* HB_EO_NEGATE,      sign operator */
+   HB_ET_NIL,                 /* HB_EO_PREINC,      */
+   HB_ET_NIL                  /* HB_EO_PREDEC,      pre-operators */
 };
 
 /* ************************************************************************* */
@@ -715,7 +715,7 @@ PHB_EXPR hb_compExprNewMacroSend( PHB_EXPR pMessage, HB_COMP_DECL )
 /* Set object in send expression
  *    pObject : pExpr
  *
- *    pExpr   = is an expression returned by hb_compExprNewSend
+ *    pExpr   = is an expression returned by hb_compExprNewSend()
  *    pObject = is an object
  */
 PHB_EXPR hb_compExprNewMethodObject( PHB_EXPR pExpr, PHB_EXPR pObject )
@@ -730,7 +730,7 @@ PHB_EXPR hb_compExprNewMethodObject( PHB_EXPR pExpr, PHB_EXPR pObject )
 /* Creates new method call
  *    pObject : identifier ( pArgList )
  *
- *    pObject  = is an expression returned by hb_compExprNewSend
+ *    pObject  = is an expression returned by hb_compExprNewSend()
  *    pArgList = list of passed arguments - it will be HB_ET_NONE if no arguments
  *                are passed
  */
@@ -1251,7 +1251,7 @@ PHB_EXPR hb_compExprSetOperand( PHB_EXPR pExpr, PHB_EXPR pItem, HB_COMP_DECL )
       }
       else
       {
-         /* Left operator has the same or higer precedence then the right one
+         /* Left operator has the same or higher precedence then the right one
           * e.g.  a * b + c
           *    pItem -> b + c   -> L=b  R=c  O=+
           *    pExpr -> a *     -> l=a  r=   o=*
@@ -1285,7 +1285,7 @@ PHB_EXPR hb_compExprMacroAsAlias( PHB_EXPR pExpr )
    return pExpr;
 }
 
-/*  Return a number of elements on the linked list
+/* Return a number of elements on the linked list
  */
 HB_ULONG hb_compExprListLen( PHB_EXPR pExpr )
 {
@@ -1319,7 +1319,7 @@ HB_BOOL hb_compExprListTypeCheck( PHB_EXPR pExpr, HB_EXPRTYPE ExprType )
    return HB_FALSE;
 }
 
-/*  Return a number of parameters passed to function or method
+/* Return a number of parameters passed to function or method
  */
 HB_ULONG hb_compExprParamListLen( PHB_EXPR pExpr )
 {
@@ -1344,7 +1344,7 @@ HB_ULONG hb_compExprParamListLen( PHB_EXPR pExpr )
    return nLen;
 }
 
-/*  Check if expression is hb_ArrayToParams( aParams ) function call
+/* Check if expression is hb_ArrayToParams( aParams ) function call
  */
 HB_BOOL hb_compExprIsArrayToParams( PHB_EXPR pExpr )
 {
@@ -1371,7 +1371,7 @@ HB_SIZE hb_compExprParamListCheck( HB_COMP_DECL, PHB_EXPR pExpr )
              hb_compExprIsArrayToParams( pElem ) )
          {
             /* &macro was passed
-               or optional parameters list passed, f.e.: f(a,b,...)
+               or optional parameters list passed, e.g.: f( a, b, ... )
                or hb_ArrayToParams( aParams )
                - handle it differently then in a normal statement */
             if( pElem->ExprType == HB_ET_MACRO )

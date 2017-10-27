@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA (or visit
- * their website at https://www.gnu.org/).
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (or visit their website at https://www.gnu.org/licenses/).
  *
  */
 
@@ -241,7 +241,7 @@ FUNCTION hbmk_plugin_qt( hbmk )
 
    RETURN cRetVal
 
-STATIC FUNCTION qt_tool_detect( hbmk, cName, cEnvQT, lPostfix )
+STATIC FUNCTION qt_tool_detect( hbmk, cName, cEnvQT, lSuffix )
 
    LOCAL cBIN
    LOCAL cEnv
@@ -250,9 +250,12 @@ STATIC FUNCTION qt_tool_detect( hbmk, cName, cEnvQT, lPostfix )
 
    IF Empty( cBIN := GetEnv( cEnvQT ) )
 
-      IF lPostfix
-         cName += GetEnv( "HB_QTPOSTFIX" )
-         aEnvList := { "HB_QTPATH", "HB_QTPOSTFIX" }
+      IF lSuffix
+         IF ! ( cEnv := GetEnv( "HB_QTPOSTFIX" ) ) == ""  /* Compatibility */
+            hb_SetEnv( "HB_QTSUFFIX", cEnv )
+         ENDIF
+         cName += GetEnv( "HB_QTSUFFIX" )
+         aEnvList := { "HB_QTPATH", "HB_QTSUFFIX" }
       ELSE
          aEnvList := { "HB_QTPATH" }
       ENDIF
@@ -280,7 +283,9 @@ STATIC FUNCTION qt_tool_detect( hbmk, cName, cEnvQT, lPostfix )
             /* The extra PATH comes from this message:
                https://www.mail-archive.com/harbour@harbour-project.org/msg21734.html */
             IF Empty( cBIN := hbmk_FindInPath( cName, GetEnv( "PATH" ) + hb_osPathListSeparator() + "/opt/qtsdk/qt/bin" ) )
-               hbmk_OutErr( hbmk, hb_StrFormat( "%1$s not or wrongly set, could not auto-detect '%2$s' executable", hbmk_ArrayToList( aEnvList, ", " ), cName ) )
+               IF ! hbmk[ "lQUIET" ]
+                  hbmk_OutErr( hbmk, hb_StrFormat( "%1$s not/wrongly set, could not auto-detect '%2$s' executable", hbmk_ArrayToList( aEnvList, ", " ), cName ) )
+               ENDIF
                RETURN NIL
             ENDIF
          ENDIF

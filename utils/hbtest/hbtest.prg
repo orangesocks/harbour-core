@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -52,7 +52,7 @@
 /* NOTE: It's worth to make tests with and without the /z switch */
 /* NOTE: Guard all Harbour extensions with __HARBOUR__ #ifdefs */
 /* NOTE: Use ":className()" instead of ":className" to make your code work
-         with Xbase++. Xbase++ seem to take differenciate between the
+         with Xbase++. Xbase++ seem to take differentiate between the
          object method and object variable form. In CA-Cl*pper and Harbour
          both syntax is accepted. Same goes for ":Eval()" */
 
@@ -140,10 +140,6 @@ STATIC sbBlockC
 STATIC saArray
 STATIC saAllTypes
 
-#ifndef __HARBOUR__
-   #xtranslate hb_eol() => ( Chr( 13 ) + Chr( 10 ) )
-#endif
-
 #define TEST_RESULT_COL1_WIDTH  1
 #define TEST_RESULT_COL2_WIDTH  20
 #define TEST_RESULT_COL3_WIDTH  40
@@ -164,16 +160,24 @@ STATIC s_lDBFAvail := .F.
 STATIC s_lNoEnv
 
 #ifdef __HARBOUR__
-   REQUEST HB_LANG_EN
+   #include "hbver.ch"
 
    ANNOUNCE HB_GTSYS
    REQUEST HB_GT_CGI_DEFAULT
+
+   #define COPYRIGHT_YEAR  hb_ntos( Year( hb_Version( HB_VERSION_BUILD_DATE ) ) )
+#else
+   #define COPYRIGHT_YEAR  "present"
+
+   #xtranslate hb_eol() => ( Chr( 13 ) + Chr( 10 ) )
 #endif
 
 PROCEDURE Main( cPar1, cPar2, cPar3 )
 
-   OutStd( "Harbour Compatibility and Regression Test Suite" + hb_eol() + ;
-           "Copyright (c) 1999-present, Viktor Szakats" + hb_eol() )
+   OutStd( ;
+      "Harbour Compatibility and Regression Test Suite" + hb_eol() + ;
+      "Copyright (c) 1999-" + COPYRIGHT_YEAR + ", " + ;
+      "Viktor Szakats" + hb_eol() )
 
    IF cPar1 == NIL
       cPar1 := ""
@@ -508,7 +512,8 @@ STATIC PROCEDURE TEST_END()
 
    IF s_nFail != 0
       #ifdef __CLIPPER__
-         OutMsg( s_nFhnd, "WARNING: Failures detected using CA-Cl*pper." + hb_eol() + ;
+         OutMsg( s_nFhnd, ;
+            "WARNING: Failures detected using CA-Cl*pper." + hb_eol() + ;
             "Please fix those expected results which are not bugs in CA-Cl*pper itself." + hb_eol() )
       #else
          OutMsg( s_nFhnd, "WARNING: Failures detected" + hb_eol() )

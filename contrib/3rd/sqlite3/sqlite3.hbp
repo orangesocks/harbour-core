@@ -1,4 +1,4 @@
--stop{hbdyn}
+-stop{hbdyn&!(HB_BUILD_3RD_DYN='yes')} -env:__HB_3RD_DYN=yes{hbdyn}
 
 -stop{poccarm}
 # NOTE: old msvcarm can't cope with some PP directives. [vszakats]
@@ -12,7 +12,7 @@
 -hblib
 -inc
 
--o${hb_targetname}
+-o${hb_name}
 
 -warn=low
 -cpp=no
@@ -48,7 +48,7 @@ hbicu.hbc
 
 sqlite3.c
 
-# URL    https://sqlite.org/2017/sqlite-autoconf-3180000.tar.gz
+# URL    https://sqlite.org/2017/sqlite-autoconf-3210000.tar.gz
 # DIFF   sqlite3.diff
 #
 # MAP    sqlite3.c

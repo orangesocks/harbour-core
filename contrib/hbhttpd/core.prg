@@ -966,18 +966,14 @@ STATIC FUNCTION MakeResponse( hConfig )
 
 STATIC FUNCTION HttpDateFormat( tDate )
 
-   LOCAL nOffset := hb_UTCOffset()
+   tDate := hb_defaultValue( tDate, hb_DateTime() ) - ( hb_UTCOffset() / 86400 )
 
    RETURN ;
       { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }[ DoW( tDate ) ] + ", " + ;
       StrZero( Day( tDate ), 2 ) + " " + ;
       { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }[ Month( tDate ) ] + " " + ;
       StrZero( Year( tDate ), 4 ) + " " + ;
-      hb_TToC( tDate, "", "hh:mm:ss" ) + " " + ;
-      hb_StrFormat( "UTC%1$s%2$02d%3$02d", ;
-         iif( nOffset < 0, "-", "+" ), ;
-         Int( Abs( nOffset ) / 3600 ), ;
-         Int( Abs( nOffset ) % 3600 / 60 ) )
+      hb_TToC( tDate, "", "hh:mm:ss" ) + " GMT"
 
 STATIC FUNCTION HttpDateUnformat( cDate, /* @ */ tDate )
 
@@ -1196,7 +1192,7 @@ FUNCTION UGetHeader( cType )
    LOCAL nI
 
    IF ( nI := AScan( t_aHeader, {| x | Upper( x[ 1 ] ) == Upper( cType ) } ) ) > 0
-      RETURN t_aHeader[ nI, 2 ]
+      RETURN t_aHeader[ nI ][ 2 ]
    ENDIF
 
    RETURN NIL
@@ -1206,7 +1202,7 @@ PROCEDURE UAddHeader( cType, cValue )
    LOCAL nI
 
    IF ( nI := AScan( t_aHeader, {| x | Upper( x[ 1 ] ) == Upper( cType ) } ) ) > 0
-      t_aHeader[ nI, 2 ] := cValue
+      t_aHeader[ nI ][ 2 ] := cValue
    ELSE
       AAdd( t_aHeader, { cType, cValue } )
    ENDIF
@@ -1264,7 +1260,7 @@ PROCEDURE USessionStart()
       t_aSessionData := httpd:hSession[ cSID ]
       IF hb_mutexLock( t_aSessionData[ 1 ], 0 )
 
-         // No concurent sessions
+         // No concurrent sessions
          IF t_aSessionData[ 3 ] > hb_MilliSeconds()
             t_aSessionData[ 3 ] := hb_MilliSeconds() + SESSION_TIMEOUT * 1000
             session := t_aSessionData[ 2 ]
@@ -1274,7 +1270,7 @@ PROCEDURE USessionStart()
          ENDIF
       ELSE
 
-         // Concurent process exists
+         // Concurrent process exists
          hb_mutexUnlock( httpd:hmtxSession )
 
          // Wait for session
@@ -1292,7 +1288,7 @@ PROCEDURE USessionStart()
                USessionCreateInternal()
             ENDIF
          ELSE
-            // Session was destroyed by concurent process
+            // Session was destroyed by concurrent process
             USessionCreateInternal()
          ENDIF
       ENDIF
@@ -1414,7 +1410,7 @@ PROCEDURE UProcFiles( cFileName, lIndex )
 
          USetStatusCode( 412 )
       ELSE
-         UAddHeader( "Content-Type", tip_FileNameMimeType( cFileName, "application/octet-stream" ) )
+         UAddHeader( "Content-Type", hb_mimeFName( cFileName, "application/octet-stream" ) )
 
          IF hb_vfTimeGet( UOsFileName( cFileName ), @tDate )
             UAddHeader( "Last-Modified", HttpDateFormat( tDate ) )

@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -45,13 +45,13 @@
  */
 
 /*
-   patterm format:
+   pattern format:
    '%' [<flags>*] [<field width>] [.<precision>] [<length modifier>]
        <conversion specifier>
  */
 
 /*
-   The folowwing conversions are not explicitly supported:
+   The following conversions are not explicitly supported:
       A, a
       E, e
       G, g
@@ -62,7 +62,7 @@
       S (or Ls)
    These are wide character conversions and needs locale settings.
 
-   double conversion if not necessary can be disabled to not create unnencessary
+   double conversion if not necessary can be disabled to not create unnecessary
    overhead and/or references to math library by
       #define __NO_DOUBLE__
    It can be also greatly optimized anyhow it will increase dependences list and
@@ -96,12 +96,11 @@
 #include <sys/param.h>
 #endif
 
-/* mingw-w64 6.1.0 x64-hosted multilib will crash hbpp.exe
+/* mingw-w64 6.1.0 x64-hosted multilib will crash hbpp executable
    inside this function if built in LTO mode for x86 target.
-   Working-around the problem by disabling LTO in this
-   specific case for this specific function. The setting
-   is applied to the whole file, regardless of where it's
-   placed. [vszakats] */
+   Working-around the problem by disabling LTO in this specific
+   case for this specific function. The setting is applied to the
+   whole file, regardless of where it's placed. [vszakats] */
 #if defined( HB_GCC_HAS_OPTIMIZE ) && ( HB_GCC_VER == 601 ) \
     && defined( __MINGW32__ ) && defined( HB_CPU_X86_64 )
 #  pragma GCC push_options
@@ -128,7 +127,7 @@
     ( defined( __DJGPP__ ) && \
       ( __DJGPP__ < 2 || ( __DJGPP__ == 2 && __DJGPP_MINOR__ <= 3 ) ) ) || \
     ( defined( _MSC_VER ) && \
-      !( defined( __LCC__ ) || defined( __POCC__ ) || defined( __XCC__ ) ) )
+      !( defined( __LCC__ ) || defined( __POCC__ ) ) )
    /* TODO: add other C compilers which does not support [u]intmax_t
     *       definitions (check C compiler version number).
     *       If compiler supports stdint.h then it should be added
@@ -269,7 +268,7 @@ typedef struct
 
 #ifdef __NO_ARGPOS__
 
-/* this version does not support positional parameters (f.e. '%1$d')
+/* this version does not support positional parameters (e.g. '%1$d')
  * they can be added but it will force allocating additional
  * memory block in heap or stack and making second pass for
  * format decoding/coping.
@@ -958,7 +957,7 @@ int hb_printf_params( const char * format )
                      format += 2;
                      c = *format++;
                   }
-                  /* no break; */
+                  /* fallthrough */
                default:
                   break;
             }
@@ -1204,7 +1203,7 @@ int hb_vsnprintf( char * buffer, size_t bufsize, const char * format, va_list ap
                         format += 2;
                         c = *format++;
                      }
-                     /* no break; */
+                     /* fallthrough */
                   default:
                      length = _L_UNDEF_;
                      break;
@@ -1224,7 +1223,7 @@ int hb_vsnprintf( char * buffer, size_t bufsize, const char * format, va_list ap
                       * valid parameters order
                       */
                      c = ( c == 'a' || c == 'e' || c == 'g' ) ? 'f' : 'F';
-                     /* no break; */
+                     /* fallthrough */
                   case 'f':   /* double decimal notation */
                   case 'F':   /* double decimal notation */
                      if( length == _L_LONGDOUBLE_ )

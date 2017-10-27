@@ -1047,7 +1047,7 @@ msgid "create (or not) a map file"
 msgstr "δημιουργία (ή όχι) ενός map αρχείου"
 
 #, c-format
-msgid "create (or not) an import library (in -hbdyn/-hbexe mode). The name will have a postfix added."
+msgid "create (or not) an import library (in -hbdyn/-hbexe mode). The name will have a suffix added."
 msgstr "δημιουργία (ή όχι) βιβλιοθήκης εισαγωγής (in -hbdyn/-hbexe mode). Στο όνομα θα προστεθεί ένα επίθεμα."
 
 #, c-format
@@ -1359,8 +1359,8 @@ msgid "enable pure C mode"
 msgstr "ενεργοποίηση καθαρού C mode"
 
 #, c-format
-msgid "enable xhb mode"
-msgstr "ενεργοποίηση xhb mode"
+msgid "enable xHarbour mode"
+msgstr "ενεργοποίηση xHarbour mode"
 
 #, c-format
 msgid "Harbour compiler build information"
@@ -1891,8 +1891,8 @@ msgid "static build (see -static and related options)"
 msgstr "κατασκευή static (δες -static και τις σχετικές επιλογές)"
 
 #, c-format
-msgid "target C compiler belongs to gcc family (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, open64, pcc)"
-msgstr "ο χρησιμοποιούμενος μεταγλωττιστής C ανήκει στην οικογένεια gcc (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, open64, pcc)"
+msgid "target C compiler belongs to gcc family (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, clang64, open64, pcc)"
+msgstr "ο χρησιμοποιούμενος μεταγλωττιστής C ανήκει στην οικογένεια gcc (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, clang64, open64, pcc)"
 
 #, c-format
 msgid "target C compiler is bcc* (bcc, bcc64)"
@@ -1943,8 +1943,8 @@ msgid "Windows UNICODE (WIDE) mode (see -winuni option)"
 msgstr "κατάσταση λειτουργίας Windows UNICODE (WIDE) (δες επιλογή -winuni)"
 
 #, c-format
-msgid "xhb mode (see -xhb option)"
-msgstr "xhb μοντέλο (δες επιλογή -xhb)"
+msgid "xHarbour mode (see -xhb option)"
+msgstr "xHarbour μοντέλο (δες επιλογή -xhb)"
 
 #, c-format
 msgid ".hbc directives (they should be written in separate lines):"

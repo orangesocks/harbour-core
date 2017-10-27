@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -65,20 +65,20 @@ HB_SYM_HOLDER, * PHB_SYM_HOLDER;
 
 #if defined( HB_MT_VM )
 
-   #include "hbthread.h"
+#  include "hbthread.h"
 
    static HB_CRITICAL_NEW( s_dynsMtx );
-   #define HB_DYNSYM_LOCK()      hb_threadEnterCriticalSection( &s_dynsMtx )
-   #define HB_DYNSYM_UNLOCK()    hb_threadLeaveCriticalSection( &s_dynsMtx )
+#  define HB_DYNSYM_LOCK()      hb_threadEnterCriticalSection( &s_dynsMtx )
+#  define HB_DYNSYM_UNLOCK()    hb_threadLeaveCriticalSection( &s_dynsMtx )
 
-   #define hb_dynsymHandles( p )     hb_stackGetDynHandle( p )
+#  define hb_dynsymHandles( p )     hb_stackGetDynHandle( p )
 
 #else
 
-   #define HB_DYNSYM_LOCK()      do {} while( 0 )
-   #define HB_DYNSYM_UNLOCK()    do {} while( 0 )
+#  define HB_DYNSYM_LOCK()      do {} while( 0 )
+#  define HB_DYNSYM_UNLOCK()    do {} while( 0 )
 
-   #define hb_dynsymHandles( p )     ( p )
+#  define hb_dynsymHandles( p )     ( p )
 
 #endif /* HB_MT_VM */
 
@@ -266,7 +266,7 @@ PHB_DYNS hb_dynsymNew( PHB_SYMB pSymbol )
           */
          if( pDynSym->pSymbol->value.pFunPtr == pSymbol->value.pFunPtr )
          {
-            /* The addresses have been updated, f.e. in such way works GCC
+            /* The addresses have been updated, e.g. in such way works GCC
              * in Linux (but not MinGW and DJGPP) if user will allow to create
              * binaries with multiple symbols by
              *    -Wl,--allow-multiple-definition
@@ -293,7 +293,7 @@ PHB_DYNS hb_dynsymNew( PHB_SYMB pSymbol )
             {
                /* It's dynamic module so we are guessing that HVM
                 * intentionally not updated function address allowing
-                * multiple functions, f.e. programmer asked about keeping
+                * multiple functions, e.g. programmer asked about keeping
                 * local references using hb_libLoad()/hb_hrbLoad() parameter.
                 * In such case update pDynSym address in the new symbol but
                 * do not register it as the main one
@@ -305,10 +305,10 @@ PHB_DYNS hb_dynsymNew( PHB_SYMB pSymbol )
              * decide what to do with them. We can leave it as is or we can
              * try to overload one symbol so both will point to the same
              * function. For .prg code such overloading will work but not
-             * for C code which makes sth like: HB_FUNC_EXEC( funcname );
+             * for C code which makes something like: HB_FUNC_EXEC( funcname );
              * In such case we cannot do anything - we cannot even detect
              * such situation. In some cases even linker cannot detect it
-             * because C compiler can make autoinlining or some bindings
+             * because C compiler can make auto-inlining or some bindings
              * which are not visible for linker
              */
             /* Let's try to overload one of the functions. Simple:

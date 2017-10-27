@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -51,12 +51,12 @@
  * functions hb_put_ieee754() and hb_get_ieee754() stores / retrieve
  * IEEE754 double value making conversion from/to native C double type.
  * They should be used on platforms which does not use IEEE754 double
- * and user needs binary compatibility, f.e. he wants to share CDXs or
+ * and user needs binary compatibility, e.g. he wants to share CDXs or
  * or DBFs with "B" fields with other station or use common .hrb files
  * functions hb_put_ord_ieee754() and hb_get_ord_ieee754() converts
  * to/from special modified IEEE754 double form used by some index formats
  * like CDX or NSX to create index keys. In this form double numbers can
- * be sorted as 8-bytes character values (f.e. with memcmp())
+ * be sorted as 8-bytes character values (e.g. with memcmp())
  */
 
 #define HB_MANTISSA_BITS  52
@@ -216,7 +216,7 @@ double hb_get_ord_ieee754( const HB_BYTE * ptr )
 
 /*
  * I added function hb_get_rev_double() and hb_get_std_double() because
- * some compilers does not like constraction used by in HB_GET_LE_DOUBLE
+ * some compilers does not like construction used by in HB_GET_LE_DOUBLE()
  * macro => d = { ... }
  */
 double hb_get_rev_double( const HB_BYTE * ptr )

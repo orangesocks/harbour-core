@@ -16,9 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -148,7 +148,7 @@ static HB_ERRCODE hb_waSkipFilter( AREAP pArea, HB_LONG lUpDown )
 
    /* Since lToSkip is passed to SkipRaw, it should never request more than
       a single skip.
-      The implied purpose of hb_waSkipFilter is to get off of a "bad" record
+      The implied purpose of hb_waSkipFilter() is to get off of a "bad" record
       after a skip was performed, NOT to skip lToSkip filtered records.
     */
    lUpDown = ( lUpDown < 0  ? -1 : 1 );
@@ -399,8 +399,8 @@ static HB_ERRCODE hb_waCreateFields( AREAP pArea, PHB_ITEM pStruct )
          case 'N':
             dbFieldInfo.uiType = HB_FT_LONG;
             dbFieldInfo.uiDec = uiDec;
-            /* DBASE documentation defines maximum numeric field size as 20
-             * but Clipper allows to create longer fileds so I remove this
+            /* dBase documentation defines maximum numeric field size as 20
+             * but Clipper allows to create longer fields so I remove this
              * limit, Druzus
              */
             /*
@@ -922,7 +922,7 @@ static HB_ERRCODE hb_waInfo( AREAP pArea, HB_USHORT uiIndex, PHB_ITEM pItem )
 
 /*
  * Retrieve information about the current order that SELF could not.
- * Called by SELF_ORDINFO if uiIndex is not supported.
+ * Called by SELF_ORDINFO() if uiIndex is not supported.
  */
 static HB_ERRCODE hb_waOrderInfo( AREAP pArea, HB_USHORT uiIndex, LPDBORDERINFO pInfo )
 {
@@ -937,7 +937,9 @@ static HB_ERRCODE hb_waOrderInfo( AREAP pArea, HB_USHORT uiIndex, LPDBORDERINFO 
    /* CA-Cl*pper does not generate RT error when default ORDERINFO() method
     * is called
     */
-   /* hb_errRT_DBCMD( EG_ARG, EDBCMD_BADPARAMETER, NULL, HB_ERR_FUNCNAME ); */
+   #if 0
+   hb_errRT_DBCMD( EG_ARG, EDBCMD_BADPARAMETER, NULL, HB_ERR_FUNCNAME );
+   #endif
 
    return HB_FAILURE;
 }
@@ -1540,7 +1542,9 @@ static HB_ERRCODE hb_waRelEval( AREAP pArea, LPDBRELINFO pRelInfo )
                    * non numerical record IDs then this method should be overloaded
                    * to use SELF_GOTOID(), [druzus]
                    */
-                  /* errCode = SELF_GOTOID( pArea, pResult ); */
+                  #if 0
+                  errCode = SELF_GOTOID( pArea, pResult );
+                  #endif
                   errCode = SELF_GOTO( pArea, hb_itemGetNL( pResult ) );
                   if( errCode == HB_SUCCESS )
                   {
@@ -1924,20 +1928,9 @@ static HB_ERRCODE hb_waRddInfo( LPRDDNODE pRDD, HB_USHORT uiIndex, HB_ULONG ulCo
          const char * szExt = hb_setGetMFileExt();
          char * szResult = szExt ? hb_strdup( szExt ) : NULL;
          if( hb_itemType( pItem ) & HB_IT_STRING )
-         {
             hb_setSetItem( HB_SET_MFILEEXT, pItem );
-            if( szResult )
-               hb_itemPutCLPtr( pItem, szResult, strlen( szResult ) );
-            else
-               hb_itemPutC( pItem, NULL );
-            break;
-         }
-         else if( szResult )
-         {
-            hb_itemPutCLPtr( pItem, szResult, strlen( szResult ) );
-            break;
-         }
-         /* no break - return HB_FAILURE */
+         hb_itemPutCPtr( pItem, szResult );
+         break;
       }
       case RDDI_TABLEEXT:
       case RDDI_ORDBAGEXT:
@@ -1948,7 +1941,7 @@ static HB_ERRCODE hb_waRddInfo( LPRDDNODE pRDD, HB_USHORT uiIndex, HB_ULONG ulCo
       case RDDI_TRIGGER:
       case RDDI_PENDINGTRIGGER:
          hb_itemPutC( pItem, NULL );
-         /* no break - return HB_FAILURE */
+         /* fallthrough */ /* return HB_FAILURE */
 
       default:
          return HB_FAILURE;
@@ -2152,7 +2145,7 @@ static HB_USHORT      s_uiRddRedirMax   = 0;
 static HB_USHORT      s_uiRddRedirCount = 0;
 
 /*
- * Get RDD node poionter
+ * Get RDD node pointer
  */
 LPRDDNODE hb_rddGetNode( HB_USHORT uiNode )
 {
@@ -2208,7 +2201,7 @@ LPRDDNODE hb_rddFindNode( const char * szDriver, HB_USHORT * uiIndex )
 }
 
 /*
- * Find a RDD node respecing file/table name
+ * Find a RDD node respecting file/table name
  */
 LPRDDNODE hb_rddFindFileNode( LPRDDNODE pRddNode, const char * szFileName )
 {

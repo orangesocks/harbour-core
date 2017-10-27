@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -151,7 +151,9 @@ static void memfsExit( void * cargo )
 
 static void memfsInit( void )
 {
-   /* HB_CRITICAL_INIT( s_mtx ); */
+   #if 0
+   HB_CRITICAL_INIT( s_mtx );
+   #endif
    s_error = 0;
    s_fs.ulInodeCount = 0;
    s_fs.ulInodeAlloc = HB_MEMFS_INITSIZE;
@@ -511,20 +513,34 @@ HB_MEMFS_EXPORT HB_FHANDLE hb_memfsOpen( const char * szName, HB_USHORT uiFlags 
 
    s_error = uiError;
 
-   if( ! pFile )
+   if( pFile )
    {
-      HB_MEMFSMT_UNLOCK();
-      return FS_ERROR;
-   }
-   pFile->pInode->uiDeny |= uiFlags & FOX_DENYFLAGS;
-   if( uiFlags & FOX_READ )
-      pFile->pInode->uiCountRead++;
-   if( uiFlags & FOX_WRITE )
-      pFile->pInode->uiCountWrite++;
+      if( uiFlags & FO_TRUNC )
+      {
+         pFile->pInode->llSize = 0;
+         if( pFile->pInode->llAlloc != HB_MEMFS_INITSIZE )
+         {
+            pFile->pInode->llAlloc = HB_MEMFS_INITSIZE;
+            hb_xfree( pFile->pInode->pData );
+            pFile->pInode->pData = ( char * ) hb_xgrab( ( HB_ULONG ) pFile->pInode->llAlloc );
+         }
+         memset( pFile->pInode->pData, 0, ( HB_SIZE ) pFile->pInode->llAlloc );
+      }
 
-   pFile->uiFlags = uiFlags;
-   hFile = memfsHandleAlloc( pFile );
+      pFile->pInode->uiDeny |= uiFlags & FOX_DENYFLAGS;
+      if( uiFlags & FOX_READ )
+         pFile->pInode->uiCountRead++;
+      if( uiFlags & FOX_WRITE )
+         pFile->pInode->uiCountWrite++;
+
+      pFile->uiFlags = uiFlags;
+      hFile = memfsHandleAlloc( pFile );
+   }
+   else
+      hFile = FS_ERROR;
+
    HB_MEMFSMT_UNLOCK();
+
    return hFile;
 }
 

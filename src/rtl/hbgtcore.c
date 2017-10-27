@@ -1,5 +1,5 @@
 /*
- * Harbour Graphic Terminal low level code
+ * Harbour Graphic Terminal low-level code
  *
  * Copyright 2006 Przemyslaw Czerpak < druzus /at/ priv.onet.pl >
  *
@@ -20,9 +20,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -52,6 +52,7 @@
 
 #define HB_GT_NAME  NUL
 
+#include "hbapi.h"
 #include "hbgtcore.h"
 #include "hbapiitm.h"
 #include "hbapistr.h"
@@ -644,7 +645,7 @@ static void hb_gt_def_SetSnowFlag( PHB_GT pGT, HB_BOOL fNoSnow )
 {
    /*
     * NOTE: This is a compatibility function which have to be implemented
-    *       in low level GT driver.
+    *       in low-level GT driver.
     *       If you're running on a CGA and snow is a problem speak up!
     */
 
@@ -1868,7 +1869,7 @@ static HB_BOOL hb_gt_def_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
          HB_GTSELF_SETCURSORSTYLE( pGT, SC_NORMAL );
          HB_GTSELF_DISPEND( pGT );
          HB_GTSELF_FLUSH( pGT );
-         /* no break; */
+         /* fallthrough */
 
       case HB_GTI_GETWIN:  /* save screen buffer, cursor shape and position */
       {
@@ -1878,7 +1879,7 @@ static HB_BOOL hb_gt_def_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
          if( ! pInfo->pResult )
             pInfo->pResult = hb_itemNew( NULL );
          hb_arrayNew( pInfo->pResult, 7 );
-         /* 7-th item is allocated for GTCTW window number */
+         /* 7th item is allocated for GTCTW window number */
          HB_GTSELF_GETPOS( pGT, &iRow, &iCol );
          hb_arraySetNI( pInfo->pResult, 1, iRow );
          hb_arraySetNI( pInfo->pResult, 2, iCol );
@@ -2930,9 +2931,9 @@ static void hb_gt_def_InkeyPoll( PHB_GT pGT )
    /*
     * Clipper 5.3 always poll events without respecting
     * _SET_TYPEAHEAD when CL5.2 only when it's non zero.
-    * IMHO keeping CL5.2 behavior will be more accurate for harbour
+    * IMHO keeping CL5.2 behavior will be more accurate for Harbour
     * because it allows to control it by user what some times could be
-    * necessary due to different low level GT behavior on some platforms
+    * necessary due to different low-level GT behavior on some platforms
     */
    if( hb_setGetTypeAhead() )
       hb_gt_def_InkeyPollDo( pGT );

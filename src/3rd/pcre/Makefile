@@ -31,11 +31,11 @@ C_SOURCES := \
 ifneq ($(HB_HAS_PCRE_LOCAL),)
 
    HB_CFLAGS += -DSUPPORT_UTF -DSUPPORT_UCP
-   # only needed for win/wce, for other platforms this is noop
+   # only needed for win/wce, for other platforms this is no-op
    HB_CFLAGS_STA := -DPCRE_STATIC
 
-   ifneq ($(filter $(HB_COMPILER),clang gcc mingw mingw64 sunpro),)
-      ifeq ($(filter $(HB_PLATFORM)-$(HB_COMPILER),win-clang),)
+   ifneq ($(filter $(HB_COMPILER),gcc clang clang64 mingw mingw64 sunpro),)
+      ifeq ($(filter $(HB_PLATFORM)-$(HB_COMPILER),win-clang win-clang64),)
          HB_CFLAGS += -DHAVE_INTTYPES_H
       endif
    endif
@@ -53,12 +53,6 @@ ifneq ($(HB_HAS_PCRE_LOCAL),)
       endif
    endif
 
-   ifneq ($(filter $(HB_COMPILER),msvc msvc64 msvcia64 msvcarm),)
-      ifeq ($(filter $(HB_COMPILER_VER),1200 1300 1310 1400 1500 1600),)
-         HB_CFLAGS += -sdl-
-      endif
-   endif
-
    # suppress bcc warnings
    ifeq ($(HB_COMPILER),bcc)
       HB_CFLAGS += -w-use -w-csu -w-aus -w-sig
@@ -70,13 +64,13 @@ else
    include $(TOP)$(ROOT)config/none.mk
 endif
 
-# ORIGIN http://pcre.org/
-# URL    https://ftp.pcre.org/pub/pcre/pcre-8.40.tar.bz2
+# ORIGIN https://pcre.org/
+# URL    https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.bz2
 #
 # MAP    LICENCE
 # MAP    config.h.generic        config.h
 # MAP    pcre.h.generic          pcre.h
-# MAP    pcre_internal.h         pcre_internal.h
+# MAP    pcre_internal.h
 # MAP    ucp.h
 # MAP    pcre_chartables.c.dist  pcre_chartables.c
 # MAP    pcre_byte_order.c

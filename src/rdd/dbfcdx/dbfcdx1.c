@@ -18,9 +18,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -51,7 +51,7 @@
 #define HB_CDX_NEW_SORT
 
 #if ! defined( HB_SIXCDX )
-   #define HB_CDX_PACKTRAIL
+#  define HB_CDX_PACKTRAIL
 #endif
 
 #define HB_CDX_DBGCODE
@@ -117,7 +117,7 @@ static void hb_cdxIndexPoolFree( LPCDXINDEX pIndex, int nPagesLeft );
 /* split Root Page */
 static int hb_cdxPageRootSplit( LPCDXPAGE pPage );
 
-/* free create index structur */
+/* free create index structure */
 static void hb_cdxSortFree( LPCDXSORTINFO pSort );
 
 static HB_USHORT s_uiRddId = ( HB_USHORT ) -1;
@@ -273,7 +273,7 @@ static LPCDXKEY hb_cdxKeyCopy( LPCDXKEY pKeyDest, LPCDXKEY pKey )
 }
 
 /*
- * store bytes value in inkdex key
+ * store bytes value in index key
  */
 static LPCDXKEY hb_cdxKeyPut( LPCDXKEY pKey, const HB_BYTE * pbVal, HB_USHORT uiLen, HB_ULONG ulRec )
 {
@@ -299,7 +299,7 @@ static LPCDXKEY hb_cdxKeyPut( LPCDXKEY pKey, const HB_BYTE * pbVal, HB_USHORT ui
 }
 
 /*
- * store string value in inkdex key
+ * store string value in index key
  */
 static LPCDXKEY hb_cdxKeyPutCL( LPCDXKEY pKey, const char * pText, HB_SIZE nLen, HB_ULONG ulRec, HB_USHORT uiKeyLen, int iMode )
 {
@@ -1173,8 +1173,9 @@ static void hb_cdxIndexCheckVersion( LPCDXINDEX pIndex )
       pIndex->freePage = ulFree;
       hb_cdxIndexDiscardBuffers( pIndex );
    }
-   /* TODO: !!! ## remove it it's for test only */
-   /* hb_cdxIndexDiscardBuffers( pIndex ); */
+   #if 0
+   hb_cdxIndexDiscardBuffers( pIndex );  /* TODO: !!! ## remove it it's for test only */
+   #endif
 }
 
 /*
@@ -1538,7 +1539,7 @@ static HB_ULONG hb_cdxPageGetKeyRec( LPCDXPAGE pPage, int iKey )
 }
 
 /*
- * get child page number from interrior index page
+ * get child page number from interior index page
  */
 static HB_ULONG hb_cdxPageGetKeyPage( LPCDXPAGE pPage, int iKey )
 {
@@ -1941,7 +1942,7 @@ static void hb_cdxPageLeafInitSpace( LPCDXPAGE pPage )
 
 /*
  * calculate the size of keys stored in buffer, return
- * the number of keys wich can be stored in the page
+ * the number of keys which can be stored in the page
  */
 static void hb_cdxPageCalcLeafSpace( LPCDXPAGE pPage, HB_BYTE * pKeyBuf, int iKeys )
 {
@@ -1957,7 +1958,7 @@ static void hb_cdxPageCalcLeafSpace( LPCDXPAGE pPage, HB_BYTE * pKeyBuf, int iKe
 #ifdef HB_CDX_DBGCODE_EXT
    hb_cdxPageCheckDupTrl( pPage, pKeyBuf, iKeys, HB_FALSE );
 #endif
-   /* clear duplicate counter in 1-st key */
+   /* clear duplicate counter in 1st key */
    HB_PUT_LE_UINT16( &pKeyBuf[ iNum + 4 ], 0 );
    for( iKey = 0; iKey < iKeys; iKey++ )
    {
@@ -3496,7 +3497,7 @@ static void hb_cdxTagHeaderStore( LPCDXTAG pTag )
 #if defined( HB_SIXCDX )
 static HB_BOOL hb_cdxIsTemplateFunc( const char * szKeyExpr )
 {
-   /* For CDX format SIx3 really makes sth like that */
+   /* For CDX format SIx3 really makes something like that */
    return hb_strnicmp( szKeyExpr, "sxChar(", 7 ) == 0 ||
           hb_strnicmp( szKeyExpr, "sxDate(", 7 ) == 0 ||
           hb_strnicmp( szKeyExpr, "sxNum(", 6 ) == 0 ||
@@ -3730,7 +3731,7 @@ static void hb_cdxTagFree( LPCDXTAG pTag )
 /*
  * Creates a new structure with a tag information
  * TagHdr = offset of index page where a tag header is stored
- *            if CDX_DUMMYNODE then allocate space ofor a new tag header
+ *            if CDX_DUMMYNODE then allocate space for a new tag header
  */
 static LPCDXTAG hb_cdxTagNew( LPCDXINDEX pIndex, const char * szTagName, HB_ULONG TagHdr )
 {
@@ -3852,7 +3853,7 @@ static void hb_cdxTagPoolFlush( LPCDXTAG pTag )
 }
 
 /*
- * retrive CurKey from current Tag possition
+ * retrieve CurKey from current Tag position
  */
 static void hb_cdxSetCurKey( LPCDXPAGE pPage )
 {
@@ -3985,7 +3986,7 @@ static HB_BOOL hb_cdxCheckRecordScope( CDXAREAP pArea, HB_ULONG ulRec )
 }
 
 /*
- * check and avaluate record filter
+ * check and evaluate record filter
  */
 static HB_BOOL hb_cdxCheckRecordFilter( CDXAREAP pArea, HB_ULONG ulRecNo )
 {
@@ -4230,6 +4231,7 @@ static void hb_cdxTagKeyRead( LPCDXTAG pTag, HB_BYTE bTypRead )
 
          case PREV_RECORD:
             bTypRead = PRVU_RECORD;
+            /* fallthrough */
          case BTTM_RECORD:
             fAfter = HB_TRUE;
             break;
@@ -9819,7 +9821,9 @@ static void hb_cdxTagDoIndex( LPCDXTAG pTag, HB_BOOL fReindex )
 #if ! defined( HB_SIXCDX )
       if( pEvalItem && lStep )
       {
-         /* pArea->dbfarea.area.fEof = HB_TRUE; */
+         #if 0
+         pArea->dbfarea.area.fEof = HB_TRUE;
+         #endif
          hb_cdxEvalCond( pArea, pEvalItem, HB_FALSE );
       }
 #endif
@@ -9994,9 +9998,9 @@ static const RDDFUNCS cdxTable =
 
 
 #if defined( HB_SIXCDX )
-   #define HB_CDXRDD  "SIXCDX"
+#  define HB_CDXRDD  "SIXCDX"
 #else
-   #define HB_CDXRDD  "DBFCDX"
+#  define HB_CDXRDD  "DBFCDX"
 #endif
 
 HB_FUNC_STATIC( _GETFUNCTABLE )

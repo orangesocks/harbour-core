@@ -5,7 +5,7 @@
  * Copyright 1999-2007 Viktor Szakats (vszakats.net/harbour)
  *    hb_itemPCount(), hb_itemParamPtr(), hb_itemReturnPtr()
  *    hb_itemPutDL(), hb_itemPutNI(), hb_itemGetDL(), hb_itemGetNI(),
- *    hb_itemGetCPtr(), hb_itemGetCLPtr(), hb_itemGetCLen(), hb_itemGetNLen()
+ *    hb_itemGetCPtr(), hb_itemPutCLPtr(), hb_itemGetCLen(), hb_itemGetNLen()
  *    hb_itemPutCConst(), hb_itemPutCLConst()
  *    hb_itemPutNLen(), hb_itemPutNDLen(), hb_itemPutNILen(), hb_itemPutNLLen()
  *    hb_itemPutD(), hb_itemSetCMemo()
@@ -23,9 +23,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -1600,7 +1600,7 @@ void hb_itemCopy( PHB_ITEM pDest, PHB_ITEM pSource )
          if( HB_IS_MEMVAR( pSource ) )
             hb_memvarValueIncRef( pSource->item.asMemvar.value );
 
-         else if( HB_IS_ENUM( pSource ) )    /* enumerators cannnot be copied */
+         else if( HB_IS_ENUM( pSource ) )    /* enumerators cannot be copied */
             pDest->type = HB_IT_NIL;
 
          else if( HB_IS_EXTREF( pSource ) )
@@ -2509,7 +2509,9 @@ HB_BOOL hb_itemStrBuf( char * szResult, PHB_ITEM pNumber, int iSize, int iDec )
          double dInt, dFract, dDig, doBase = 10.0;
          int iPrec, iFirst = -1;
 
-         /* dNumber = hb_numRound( dNumber, iDec ); */
+         #if 0
+         dNumber = hb_numRound( dNumber, iDec );
+         #endif
 
 #ifdef HB_NUM_PRECISION
          iPrec = HB_NUM_PRECISION;
@@ -2571,7 +2573,7 @@ HB_BOOL hb_itemStrBuf( char * szResult, PHB_ITEM pNumber, int iSize, int iDec )
             dFract = modf( dFract * doBase, &dDig );
             iLast = ( int ) ( dDig + 0.01 );
 
-            /* hack for x.xxxx4999999999, f.e. 8.995 ~FL 8.994999999999999218.. */
+            /* hack for x.xxxx4999999999, e.g. 8.995 ~FL 8.994999999999999218.. */
             if( iLast == 4 && iZer < 0 )
             {
                for( iPos = -iZer; iPos > 0; --iPos )
@@ -2683,7 +2685,7 @@ HB_BOOL hb_itemStrBuf( char * szResult, PHB_ITEM pNumber, int iSize, int iDec )
    This function should be used by any function that wants to format numeric
    data for displaying, printing, or putting in a database.
 
-   Note: The caller is responsible for calling hb_xfree to free the results
+   Note: The caller is responsible for calling hb_xfree() to free the results
          buffer, but ONLY if the return value is not a NULL pointer! (If a NULL
          pointer is returned, then there was a conversion error.)
  */

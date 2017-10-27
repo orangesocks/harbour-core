@@ -34,9 +34,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -70,6 +70,7 @@
 
 #define HB_GT_NAME  DOS
 
+#include "hbapi.h"
 #include "hbgtcore.h"
 #include "hbinit.h"
 #include "hbapicdp.h"
@@ -103,7 +104,7 @@
 /* For screen support */
 #if defined( __POWERC ) || ( defined( __TURBOC__ ) && ! defined( __BORLANDC__ ) ) || ( defined( __ZTC__ ) && ! defined( __SC__ ) )
    #define FAR  far
-#elif defined( HB_OS_DOS ) && ! defined( __DJGPP__ ) && ! defined( __RSX32__ ) && ! defined( __WATCOMC__ )
+#elif defined( HB_OS_DOS ) && ! defined( __DJGPP__ ) && ! defined( __WATCOMC__ )
    #define FAR  _far
 #else
    #define FAR
@@ -142,19 +143,7 @@ static int s_iScreenMode;
 
 static HB_BOOL s_bBreak; /* Used to signal Ctrl+Break to hb_inkeyPoll() */
 
-#if defined( __RSX32__ )
-static int kbhit( void )
-{
-   union REGS regs;
-
-   regs.h.ah = 0x0B;
-   HB_DOS_INT86( 0x21, &regs, &regs );
-
-   return regs.HB_XREGS.ax;
-}
-#endif
-
-#if ! defined( __DJGPP__ ) && ! defined( __RSX32__ )
+#if ! defined( __DJGPP__ )
 #if defined( __WATCOMC__ ) || defined( _MSC_VER )
 static void hb_gt_dos_CtrlBreak_Handler( int iSignal )
 {
@@ -817,10 +806,6 @@ static void hb_gt_dos_Init( PHB_GT pGT, HB_FHANDLE hFilenoStdin, HB_FHANDLE hFil
    __djgpp_set_ctrl_c( 0 );      /* Disable Ctrl+C */
    __djgpp_set_sigquit_key( 0 ); /* Disable Ctrl+\ */
 
-#elif defined( __RSX32__ )
-
-   /* TODO */
-
 #elif defined( __WATCOMC__ )
 
    break_off();
@@ -1013,10 +998,6 @@ static const char * hb_gt_dos_Version( PHB_GT pGT, int iType )
    #define outportw  outpw     /* Use correct function name */
    #define inportw   inpw      /* Use correct function name */
    #define inportb   inp       /* Use correct function name */
-#elif defined( __RSX32__ )
-   #define inportb( p )      0 /* Return 0 */
-   #define outportw( p, w )    /* Do nothing */
-   #define outportb( p, b )    /* Do nothing */
 #endif
 
 static void vmode12x40( void )
@@ -1107,7 +1088,7 @@ static void vmode43x80( void )
 {
    union REGS regs;
 
-   regs.HB_XREGS.ax = 0x1201;               /*  select 350 scan line mode */
+   regs.HB_XREGS.ax = 0x1201;               /* select 350 scan line mode */
    regs.h.bl = 0x30;
    HB_DOS_INT86( INT_VIDEO, &regs, &regs );
    regs.HB_XREGS.ax = 0x0003;               /* mode in AL, if higher bit is on, No CLS */
@@ -1126,7 +1107,7 @@ static void vmode50x80( void )
 {
    union REGS regs;
 
-   regs.HB_XREGS.ax = 0x1202;               /*  select 400 scan line mode */
+   regs.HB_XREGS.ax = 0x1202;               /* select 400 scan line mode */
    regs.h.bl = 0x30;
    HB_DOS_INT86( INT_VIDEO, &regs, &regs );
    regs.HB_XREGS.ax = 0x0003;               /* mode in AL, if bit 7 is on, No CLS */
@@ -1221,7 +1202,7 @@ static HB_BOOL hb_gt_dos_SetMode( PHB_GT pGT, int iRows, int iCols )
 
    hb_gt_dos_GetScreenSize( &s_iRows, &s_iCols );
 
-   /* Check for succesful */
+   /* Check for success */
    if( s_iRows == iRows && s_iCols == iCols )
    {
       bSuccess = HB_TRUE;

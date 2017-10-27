@@ -14,11 +14,11 @@ OBJ_EXT := .o
 LIB_PREF := lib
 LIB_EXT := .a
 
-ifneq ($(HB_PLATFORM),darwin)
+ifeq ($(filter $(HB_PLATFORM),darwin win),)
    HB_DYN_COPT := -DHB_DYNLIB -fPIC
 endif
 
-CC := $(HB_CCACHE) $(HB_CCPREFIX)$(HB_CMP)$(HB_CCSUFFIX)
+CC := $(HB_CCACHE) $(HB_CMP)$(HB_CCSUFFIX)
 CC_IN :=
 CC_OUT := -o
 
@@ -29,7 +29,28 @@ endif
 
 CFLAGS += -D_FORTIFY_SOURCE=2
 ifeq ($(filter $(HB_COMPILER_VER),0304),)
-   CFLAGS += -fstack-protector-strong
+   ifneq ($(HB_PLATFORM),win)
+      CFLAGS += -fstack-protector-strong
+   endif
+endif
+
+ifeq ($(HB_PLATFORM),win)
+   LDFLAGS += -Wl,--nxcompat -Wl,--dynamicbase
+   DFLAGS += -Wl,--nxcompat -Wl,--dynamicbase
+   ifeq ($(HB_COMPILER),clang64)
+      LDFLAGS += -Wl,--pic-executable,-e,mainCRTStartup
+      LDFLAGS += -Wl,--high-entropy-va -Wl,--image-base,0x140000000
+      DFLAGS += -Wl,--high-entropy-va -Wl,--image-base,0x180000000
+   else
+      LDFLAGS += -Wl,--pic-executable,-e,_mainCRTStartup
+   endif
+   # '--no-insert-timestamp' has a bug failing to properly
+   # reset timestamp in many (apparently random) cases as
+   # of binutils 2.25, so disable for now.
+   #LDFLAGS += -Wl,--no-insert-timestamp
+   # This has potential risks for .dlls:
+   #    https://sourceware.org/bugzilla/show_bug.cgi?id=16887
+   #DFLAGS += -Wl,--no-insert-timestamp
 endif
 
 ifneq ($(HB_BUILD_WARN),no)
@@ -76,30 +97,90 @@ LD := $(CC)
 LD_OUT := -o
 
 LIBPATHS := $(foreach dir,$(LIB_DIR) $(SYSLIBPATHS),-L$(dir))
-LDLIBS := $(foreach lib,$(HB_USER_LIBS) $(LIBS) $(SYSLIBS),-l$(lib))
 
+LDLIBS := $(foreach lib,$(HB_USER_LIBS) $(LIBS) $(SYSLIBS),-l$(lib))
 LDFLAGS += $(LIBPATHS)
 
 ifeq ($(HB_PLATFORM),darwin)
-   AR := libtool
-   AR_RULE = ( $(AR) -static -no_warning_for_no_symbols $(ARFLAGS) $(HB_AFLAGS) $(HB_USER_AFLAGS) -o $(LIB_DIR)/$@ $(^F) $(ARSTRIP) ) || ( $(RM) $(LIB_DIR)/$@ && $(FALSE) )
-
-   DY := $(AR)
-   DFLAGS += -dynamic -flat_namespace -undefined warning -multiply_defined suppress -single_module $(LIBPATHS)
-   DY_OUT := -o$(subst x,x, )
    DLIBS := $(foreach lib,$(HB_USER_LIBS) $(SYSLIBS),-l$(lib))
-
-   DY_RULE = $(DY) $(DFLAGS) -install_name "$(DYN_NAME_NVR)" -compatibility_version $(HB_VER_MAJOR).$(HB_VER_MINOR) -current_version $(HB_VER_MAJOR).$(HB_VER_MINOR).$(HB_VER_RELEASE) $(HB_USER_DFLAGS) $(DY_OUT)$(DYN_DIR)/$@ $^ $(DLIBS) $(DYSTRIP) && $(LN) $(@F) $(DYN_FILE_NVR) && $(LN) $(@F) $(DYN_FILE_CPT)
+   DFLAGS += $(LIBPATHS)
 else
-   AR := $(HB_CCPREFIX)ar
-   AR_RULE = ( $(AR) $(ARFLAGS) $(HB_AFLAGS) $(HB_USER_AFLAGS) rcs $(LIB_DIR)/$@ $(^F) $(ARSTRIP) ) || ( $(RM) $(LIB_DIR)/$@ && $(FALSE) )
+   AR_RULE = ( $(AR) rcs $(ARFLAGS) $(HB_AFLAGS) $(HB_USER_AFLAGS) \
+      $(LIB_DIR)/$@ $(^F) $(ARSTRIP) ) \
+      || ( $(RM) $(LIB_DIR)/$@ && $(FALSE) )
 
    DY := $(CC)
    DFLAGS += -shared $(LIBPATHS)
    DY_OUT := -o$(subst x,x, )
-   DLIBS := $(foreach lib,$(HB_USER_LIBS) $(SYSLIBS),-l$(lib))
 
-   DY_RULE = $(DY) $(DFLAGS) -Wl,-soname,$(DYN_NAME_CPT) $(HB_USER_DFLAGS) $(DY_OUT)$(DYN_DIR)/$@ $^ $(DLIBS) $(DYSTRIP) && $(LN) $(@F) $(DYN_FILE_NVR) && $(LN) $(@F) $(DYN_FILE_CPT)
+   ifeq ($(HB_PLATFORM),win)
+      AR := llvm-ar
+
+      LDFLAGS += -static-libgcc
+      DFLAGS += -static-libgcc
+
+      ifneq ($(HB_CODESIGN_KEY),)
+         define create_exe_signed
+            $(LD) $(LDFLAGS) $(HB_LDFLAGS) $(HB_USER_LDFLAGS) \
+               $(LD_OUT)$(subst /,$(DIRSEP),$(BIN_DIR)/$@) $(^F) $(LDLIBS) $(LDSTRIP)
+            @$(ECHO) $(ECHOQUOTE)! Code signing: $(subst /,$(DIRSEP),$(BIN_DIR)/$@)$(ECHOQUOTE)
+            @osslsigncode sign -h sha256 -pkcs12 $(HB_CODESIGN_KEY) \
+               -pass "$(HB_CODESIGN_KEY_PASS)" -ts $(HB_SIGN_TIMEURL) \
+               -in $(subst /,$(DIRSEP),$(BIN_DIR)/$@) \
+               -out $(subst /,$(DIRSEP),$(BIN_DIR)/$@)-signed
+            @$(CP) $(subst /,$(DIRSEP),$(BIN_DIR)/$@)-signed $(subst /,$(DIRSEP),$(BIN_DIR)/$@)
+            @$(RM) $(subst /,$(DIRSEP),$(BIN_DIR)/$@)-signed
+         endef
+         LD_RULE = $(create_exe_signed)
+      endif
+
+      DLIBS := $(foreach lib,$(HB_USER_LIBS) $(LIBS) $(SYSLIBS),-l$(lib))
+
+      # NOTE: The empty line directly before 'endef' HAS TO exist!
+      define dynlib_object
+         @$(ECHO) $(ECHOQUOTE)INPUT($(subst \,/,$(file)))$(ECHOQUOTE) >> __dyn__.tmp
+
+      endef
+      ifneq ($(HB_CODESIGN_KEY),)
+         define create_dynlib_signed
+            $(if $(wildcard __dyn__.tmp),@$(RM) __dyn__.tmp,)
+            $(foreach file,$^,$(dynlib_object))
+            $(DY) $(DFLAGS) $(HB_USER_DFLAGS) $(DY_OUT)$(DYN_DIR)/$@ __dyn__.tmp \
+               $(DEF_FILE) $(DLIBS) \
+               -Wl,--out-implib,$(IMP_FILE),--output-def,$(DYN_DIR)/$(basename $@).def \
+               -Wl,--major-image-version,$(HB_VER_MAJOR) \
+               -Wl,--minor-image-version,$(HB_VER_MINOR) $(DYSTRIP)
+            @$(ECHO) $(ECHOQUOTE)! Code signing: $(DYN_DIR)/$@$(ECHOQUOTE)
+            @osslsigncode sign -h sha256 -pkcs12 $(HB_CODESIGN_KEY) \
+               -pass $(HB_CODESIGN_KEY_PASS) -ts $(HB_SIGN_TIMEURL) \
+               -in $(DYN_DIR)/$@ \
+               -out $(DYN_DIR)/$@-signed
+            @$(CP) $(DYN_DIR)/$@-signed $(DYN_DIR)/$@
+            @$(RM) $(DYN_DIR)/$@-signed
+         endef
+         DY_RULE = $(create_dynlib_signed)
+      else
+         define create_dynlib
+            $(if $(wildcard __dyn__.tmp),@$(RM) __dyn__.tmp,)
+            $(foreach file,$^,$(dynlib_object))
+            $(DY) $(DFLAGS) $(HB_USER_DFLAGS) $(DY_OUT)$(DYN_DIR)/$@ __dyn__.tmp \
+               $(DEF_FILE) $(DLIBS) \
+               -Wl,--out-implib,$(IMP_FILE),--output-def,$(DYN_DIR)/$(basename $@).def \
+               -Wl,--major-image-version,$(HB_VER_MAJOR) \
+               -Wl,--minor-image-version,$(HB_VER_MINOR) $(DYSTRIP)
+         endef
+         DY_RULE = $(create_dynlib)
+      endif
+   else
+      AR := ar
+
+      DLIBS := $(foreach lib,$(HB_USER_LIBS) $(SYSLIBS),-l$(lib))
+
+      DY_RULE = $(DY) $(DFLAGS) -Wl,-soname,$(DYN_NAME_CPT) $(HB_USER_DFLAGS) \
+         $(DY_OUT)$(DYN_DIR)/$@ $^ $(DLIBS) $(DYSTRIP) \
+         && $(LN) $(@F) $(DYN_FILE_NVR) \
+         && $(LN) $(@F) $(DYN_FILE_CPT)
+   endif
 endif
 
 include $(TOP)$(ROOT)config/rules.mk

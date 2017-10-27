@@ -5,6 +5,9 @@
 # See LICENSE.txt for licensing terms.
 # ---------------------------------------------------------------
 
+# - Requires bash extensions for curly brace expansion, but using
+#   'sh' anyway to stay in POSIX shell mode with shellcheck.
+
 [ -n "${CI}" ] || [ "$1" = '--force' ] || exit
 
 cd "$(dirname "$0")/.." || exit
@@ -19,7 +22,9 @@ esac
 _BRANCH="${APPVEYOR_REPO_BRANCH}${TRAVIS_BRANCH}${CI_BUILD_REF_NAME}${GIT_BRANCH}"
 [ -n "${_BRANCH}" ] || _BRANCH="$(git symbolic-ref --short --quiet HEAD)"
 [ -n "${_BRANCH}" ] || _BRANCH='master'
-_BRANC4="$(echo "${_BRANCH}" | cut -c -4)"
+[ -n "${HB_JOB}" ] || HB_JOB="${_BRANCH}"
+[ -n "${HB_JOB_TO_RELEASE}" ] || HB_JOB_TO_RELEASE="${HB_JOB}"
+HB_JOB4="$(echo "${HB_JOB}" | cut -c -4)"
 
 [ -n "${HB_CI_THREADS}" ] || HB_CI_THREADS=4
 
@@ -27,18 +32,18 @@ _ROOT="$(realpath '.')"
 
 # Don't remove these markers.
 #hashbegin
-export NGHTTP2_VER='1.21.1'
-export NGHTTP2_HASH_32='bc453759de4498640d4a99e0c56f5cf785ecdc8c3a2a83b4c3d11f6d62b40160'
-export NGHTTP2_HASH_64='d68047214f5499de5722da1b5b55cc4be008e4bb9e568c4e3234e8811730cea4'
-export OPENSSL_VER='1.1.0e'
-export OPENSSL_HASH_32='f45bb7a8c246d8b0a09404c3e11783a721de2d7bad3697909358427aefd58b49'
-export OPENSSL_HASH_64='2318903035004446115ab714145497d5a015a1d4f0a99b8f8c75636ce6e4730b'
+export NGHTTP2_VER='1.26.0'
+export NGHTTP2_HASH_32='4bc7004dc16dae96214108eb2acf6378c0661d3adf0bb0231bc99ca9da379c5e'
+export NGHTTP2_HASH_64='5832fb91ffc8c9cf2752616b03efa6928970d221b75246e13b2e4b0856d7a79f'
+export OPENSSL_VER='1.1.0f'
+export OPENSSL_HASH_32='568e5e22298c9e75b091911573196604a62216bda4f3d2bbf7259a2ed213c488'
+export OPENSSL_HASH_64='c5bf3f5306fed5ca8b2694521456342082acab1e3e00dda332c16d40f3299a94'
 export LIBSSH2_VER='1.8.0'
-export LIBSSH2_HASH_32='ea6b8ed1a2e9224fb041c620b9364a0888d9a874764c48edcd6818bf2597bd71'
-export LIBSSH2_HASH_64='2a6b25c04082f3b206d7e05c72237eeba10e7b1b68a2c1bfbaef03589ce64733'
-export CURL_VER='7.54.0'
-export CURL_HASH_32='d65fb418b56f60db69358e95cb463f17ed4a11572195776c9c84c807b75245e1'
-export CURL_HASH_64='bca3faf3cf8b1ccda58dbf43f98f8335f9aaef8bea64979ce790f544597056df'
+export LIBSSH2_HASH_32='ca5ad5e542ec5903fb485a2db43031e508a2a419ac789d0912fa91eb0b26000a'
+export LIBSSH2_HASH_64='1ed18b4b8cf8c031a5b87a2abe7de184a08bbcba0ed36af041d6562f2ba7b6ee'
+export CURL_VER='7.56.1'
+export CURL_HASH_32='c236e0d7e6918c47ce91f1c02065c196098dbc3f28934c005efce81d75cb4a80'
+export CURL_HASH_64='1040931a5b4a39c2438f451a3b85a1beab78d9ab89c00ad8cef834d4456f7479'
 #hashend
 
 # Install/update MSYS2 packages required for completing the build
@@ -73,10 +78,10 @@ esac
 if [ "${os}" != 'win' ]; then
 
   # msvc only available on Windows
-  [ "${_BRANC4}" != 'msvc' ] || exit
+  [ "${HB_JOB4}" != 'msvc' ] || exit
 
   # Create native build for host OS
-  make -j "${HB_CI_THREADS}" HB_BUILD_DYN=no HB_BUILD_CONTRIBS=hbdoc
+  make -j "${HB_CI_THREADS}" __HB_BUILD_DYN=no HB_BUILD_CONTRIBS=hbdoc
 fi
 
 "$(dirname "$0")/mpkg_win_dl.sh" || exit
@@ -110,7 +115,7 @@ export _HB_BUILD_PKG_ARCHIVE='no'
 
 # can disable to save time/space
 
-[ "${_BRANC4}" = 'msvc' ] || export _HB_BUNDLE_3RDLIB='yes'
+[ "${HB_JOB4}" = 'msvc' ] || export _HB_BUNDLE_3RDLIB='yes'
 export HB_INSTALL_3RDDYN='yes'
 export HB_BUILD_CONTRIB_DYN='yes'
 export HB_BUILD_POSTRUN='"./hbmk2 --version" "./hbrun --version" "./hbtest -noenv" "./hbspeed --noenv --stdout"'
@@ -134,13 +139,21 @@ CODESIGN_KEY="$(realpath './package')/vszakats.p12"
 )
 [ -f "${CODESIGN_KEY}" ] || unset CODESIGN_KEY
 
-# mingw
+# mingw/clang
 
-if [ "${_BRANC4}" != 'msvc' ]; then
+if [ "${HB_JOB4}" != 'msvc' ]; then
 
   # LTO is broken as of mingw 6.1.0
 # [ "${_BRANCH#*prod*}" != "${_BRANCH}" ] && _HB_USER_CFLAGS="${_HB_USER_CFLAGS} -flto -ffat-lto-objects"
   [ "${HB_BUILD_MODE}" = 'cpp' ] && export HB_USER_LDFLAGS="${HB_USER_LDFLAGS} -static-libstdc++"
+
+  if [ "${HB_JOB#*clang*}" = "${HB_JOB}" ]; then
+    HB_COMP_BASE=mingw
+    HB_COMP_TOOL=gcc
+  else
+    HB_COMP_BASE=clang
+    HB_COMP_TOOL=clang
+  fi
 
   if [ "${os}" = 'win' ]; then
     readonly _msys_mingw32='/mingw32'
@@ -150,13 +163,13 @@ if [ "${_BRANC4}" != 'msvc' ]; then
     if [ -d "${HB_DIR_MINGW_64}" ]; then
       # Use the same toolchain for both targets
       export HB_DIR_MINGW_32="${HB_DIR_MINGW_64}"
-      _build_info_32='BUILD-mingw.txt'
+      _build_info_32="BUILD-${HB_COMP_BASE}.txt"
       _build_info_64=/dev/null
     else
       export HB_DIR_MINGW_32="${_msys_mingw32}/bin/"
       export HB_DIR_MINGW_64="${_msys_mingw64}/bin/"
-      _build_info_32='BUILD-mingw32.txt'
-      _build_info_64='BUILD-mingw64.txt'
+      _build_info_32="BUILD-${HB_COMP_BASE}32.txt"
+      _build_info_64="BUILD-${HB_COMP_BASE}64.txt"
     fi
     export HB_PFX_MINGW_32=
     export HB_PFX_MINGW_64=
@@ -169,10 +182,10 @@ if [ "${_BRANC4}" != 'msvc' ]; then
     export HB_PFX_MINGW_64='x86_64-w64-mingw32-'
     export HB_DIR_MINGW_32=
     export HB_DIR_MINGW_64=
-    HB_DIR_MINGW_32="$(dirname "$(which ${HB_PFX_MINGW_32}gcc)")"/
-    HB_DIR_MINGW_64="$(dirname "$(which ${HB_PFX_MINGW_64}gcc)")"/
-    _build_info_32='BUILD-mingw32.txt'
-    _build_info_64='BUILD-mingw64.txt'
+    HB_DIR_MINGW_32="$(dirname "$(which ${HB_PFX_MINGW_32}${HB_COMP_TOOL})")"/
+    HB_DIR_MINGW_64="$(dirname "$(which ${HB_PFX_MINGW_64}${HB_COMP_TOOL})")"/
+    _build_info_32="BUILD-${HB_COMP_BASE}32.txt"
+    _build_info_64="BUILD-${HB_COMP_BASE}64.txt"
     _bin_make='make'
 
     export HB_BUILD_3RDEXT='no'
@@ -213,12 +226,14 @@ if [ "${_BRANC4}" != 'msvc' ]; then
     export HB_WITH_CAIRO="${_inc_df}/cairo"
     export HB_WITH_FREEIMAGE="${_inc_st}"
     export HB_WITH_GD="${_inc_st}"
-    # FIXME: Because mxe ghostscript packages misses a binary, version detection
-    #        falls back to using the native ghostscript package. Applies to
-    #        64-bit as well.
+    # FIXME: Because mxe ghostscript packages miss the 'gs' tool, version
+    #        detection falls back to using the native ghostscript package.
+    #        Applies to 64-bit as well.
     export HB_WITH_GS="${_inc_df}/ghostscript"
     export HB_WITH_ICU="${_inc_df}"
+    export HB_WITH_LIBYAML="${_inc_df}"
     export HB_WITH_PGSQL="${_inc_df}"
+    export HB_WITH_RABBITMQ="${_inc_df}"
   fi
   printenv | grep -E '^(HB_WITH_|HBMK_WITH_)' | sort
   unset HB_USER_CFLAGS
@@ -228,14 +243,14 @@ if [ "${_BRANC4}" != 'msvc' ]; then
   export HB_CCPREFIX="${HB_PFX_MINGW_32}"
   [ "${HB_BUILD_MODE}" != 'cpp' ] && export HB_USER_CFLAGS="${HB_USER_CFLAGS} -fno-asynchronous-unwind-tables"
   [ "${os}" = 'win' ] && export PATH="${HB_DIR_MINGW_32}:${_ori_path}"
-  ${HB_CCPREFIX}gcc -v 2>&1 | tee "${_build_info_32}"
+  ${HB_CCPREFIX}${HB_COMP_TOOL} -v 2>&1 | tee "${_build_info_32}"
   if which osslsigncode > /dev/null 2>&1; then
     export HB_CODESIGN_KEY="${CODESIGN_KEY}"
   else
     unset HB_CODESIGN_KEY
   fi
   # shellcheck disable=SC2086
-  ${_bin_make} install ${HB_MKFLAGS} HB_COMPILER=mingw HB_CPU=x86 || exit 1
+  ${_bin_make} install ${HB_MKFLAGS} "HB_COMPILER=${HB_COMP_BASE}" HB_CPU=x86 || exit 1
 
   export HB_WITH_CURL="${HB_DIR_CURL_64}include"
   export HB_WITH_OPENSSL="${HB_DIR_OPENSSL_64}include"
@@ -264,7 +279,9 @@ if [ "${_BRANC4}" != 'msvc' ]; then
     export HB_WITH_GD="${_inc_st}"
     export HB_WITH_GS="${_inc_df}/ghostscript"
     export HB_WITH_ICU="${_inc_df}"
+    export HB_WITH_LIBYAML="${_inc_df}"
     export HB_WITH_PGSQL="${_inc_df}"
+    export HB_WITH_RABBITMQ="${_inc_df}"
   fi
   printenv | grep -E '^(HB_WITH_|HBMK_WITH_)' | sort
   unset HB_USER_CFLAGS
@@ -273,19 +290,19 @@ if [ "${_BRANC4}" != 'msvc' ]; then
   [ -n "${_libdir}" ] && export HB_BUILD_LIBPATH="${_libdir}"
   export HB_CCPREFIX="${HB_PFX_MINGW_64}"
   [ "${os}" = 'win' ] && export PATH="${HB_DIR_MINGW_64}:${_ori_path}"
-  ${HB_CCPREFIX}gcc -v 2>&1 | tee "${_build_info_64}"
+  ${HB_CCPREFIX}${HB_COMP_TOOL} -v 2>&1 | tee "${_build_info_64}"
   if which osslsigncode > /dev/null 2>&1; then
     export HB_CODESIGN_KEY="${CODESIGN_KEY}"
   else
     unset HB_CODESIGN_KEY
   fi
   # shellcheck disable=SC2086
-  ${_bin_make} install ${HB_MKFLAGS} HB_COMPILER=mingw64 HB_CPU=x86_64 || exit 1
+  ${_bin_make} install ${HB_MKFLAGS} "HB_COMPILER=${HB_COMP_BASE}64" HB_CPU=x86_64 || exit 1
 fi
 
 # msvc
 
-if [ "${_BRANC4}" = 'msvc' ]; then
+if [ "${HB_JOB4}" = 'msvc' ]; then
 
   export PATH="${_ori_path}"
 
@@ -298,12 +315,13 @@ if [ "${_BRANC4}" = 'msvc' ]; then
 
 # export _HB_MSVC_ANALYZE='yes'
 
-  [ "${_BRANCH}" = 'msvc2008' ] && _VCVARSALL=' 9.0\VC'
-  [ "${_BRANCH}" = 'msvc2010' ] && _VCVARSALL=' 10.0\VC'
-  [ "${_BRANCH}" = 'msvc2012' ] && _VCVARSALL=' 11.0\VC'
-  [ "${_BRANCH}" = 'msvc2013' ] && _VCVARSALL=' 12.0\VC'
-  [ "${_BRANCH}" = 'msvc2015' ] && _VCVARSALL=' 14.0\VC'
-  [ "${_BRANCH}" = 'msvc2017' ] && _VCVARSALL='\2017\Community\VC\Auxiliary\Build'
+  [ "${HB_JOB}" = 'msvc2008' ] && _VCVARSALL=' 9.0\VC'
+  [ "${HB_JOB}" = 'msvc2010' ] && _VCVARSALL=' 10.0\VC'
+  [ "${HB_JOB}" = 'msvc2012' ] && _VCVARSALL=' 11.0\VC'
+  [ "${HB_JOB}" = 'msvc2013' ] && _VCVARSALL=' 12.0\VC'
+  [ "${HB_JOB}" = 'msvc2015' ] && _VCVARSALL=' 14.0\VC'
+  # Assume '\<YEAR>\Community\VC\Auxiliary\Build' for anything newer:
+  [ -z "${_VCVARSALL}" ] && _VCVARSALL="\\$(echo "${HB_JOB}" | cut -c 5-8)\Community\VC\Auxiliary\Build"
 
   export _VCVARSALL="%ProgramFiles(x86)%\Microsoft Visual Studio${_VCVARSALL}\vcvarsall.bat"
 
@@ -317,8 +335,8 @@ EOF
   fi
 
   # 64-bit target not supported by these MSVC versions
-  [ "${_BRANCH}" = 'msvc2008' ] && _VCVARSALL=
-  [ "${_BRANCH}" = 'msvc2010' ] && _VCVARSALL=
+  [ "${HB_JOB}" = 'msvc2008' ] && _VCVARSALL=
+  [ "${HB_JOB}" = 'msvc2010' ] && _VCVARSALL=
 
   if [ -n "${_VCVARSALL}" ]; then
     cat << EOF > _make.bat
@@ -332,8 +350,11 @@ fi
 
 # packaging
 
-[ "${_BRANC4}" = 'msvc' ] || "$(dirname "$0")/mpkg_win.sh"
+"$(dirname "$0")/mpkg_win.sh"
 
 # documentation
 
-"$(dirname "$0")/upd_doc.sh" "${_BRANCH}"
+if [ "${_BRANCH#*master*}" != "${_BRANCH}" ] && \
+   [ "${HB_JOB}" = "${HB_JOB_TO_RELEASE}" ]; then
+  "$(dirname "$0")/upd_doc.sh"
+fi

@@ -15,6 +15,8 @@ C_SOURCES := \
    pcre2_context.c \
    pcre2_dfa_match.c \
    pcre2_error.c \
+   pcre2_find_bracket.c \
+   pcre2_jit_compile.c \
    pcre2_maketables.c \
    pcre2_match.c \
    pcre2_match_data.c \
@@ -33,34 +35,17 @@ C_SOURCES := \
 
 ifneq ($(HB_HAS_PCRE2_LOCAL),)
 
-   HB_CFLAGS += -DPCRE2_CODE_UNIT_WIDTH=8
-   # only needed for win/wce, for other platforms this is noop
+   HB_CFLAGS += -DSUPPORT_UNICODE -DPCRE2_CODE_UNIT_WIDTH=8
+   # only needed for win/wce, for other platforms this is no-op
    HB_CFLAGS_STA := -DPCRE2_STATIC
 
-   ifneq ($(filter $(HB_COMPILER),clang gcc mingw mingw64 sunpro),)
-      ifeq ($(filter $(HB_PLATFORM)-$(HB_COMPILER),win-clang),)
+   ifneq ($(filter $(HB_COMPILER),gcc clang clang64 mingw mingw64 sunpro),)
+      ifeq ($(filter $(HB_PLATFORM)-$(HB_COMPILER),win-clang win-clang64),)
          HB_CFLAGS += -DHAVE_INTTYPES_H
       endif
    endif
 
    HB_CFLAGS += -DHAVE_CONFIG_H
-
-   # workaround for problems in sunpro x86 PIC builds exploited by hbpcre library code
-   ifeq ($(HB_COMPILER),sunpro)
-      ifeq ($(HB_PLATFORM),sunos)
-         ifeq ($(findstring sparc,$(shell isalist)),)
-            HB_CFLAGS += -xbuiltin=%none
-         endif
-      else
-         HB_CFLAGS += -xbuiltin=%none
-      endif
-   endif
-
-   ifneq ($(filter $(HB_COMPILER),msvc msvc64 msvcia64 msvcarm),)
-      ifeq ($(filter $(HB_COMPILER_VER),1200 1300 1310 1400 1500 1600),)
-         HB_CFLAGS += -sdl-
-      endif
-   endif
 
    # suppress bcc warnings
    ifeq ($(HB_COMPILER),bcc)
@@ -73,8 +58,8 @@ else
    include $(TOP)$(ROOT)config/none.mk
 endif
 
-# ORIGIN http://pcre.org/
-# URL    https://ftp.pcre.org/pub/pcre/pcre2-10.23.tar.bz2
+# ORIGIN https://pcre.org/
+# URL    https://ftp.pcre.org/pub/pcre/pcre2-10.30.tar.bz2
 #
 # MAP    LICENCE
 # MAP    src/config.h.generic         config.h
@@ -89,6 +74,10 @@ endif
 # MAP    src/pcre2_context.c          pcre2_context.c
 # MAP    src/pcre2_dfa_match.c        pcre2_dfa_match.c
 # MAP    src/pcre2_error.c            pcre2_error.c
+# MAP    src/pcre2_find_bracket.c     pcre2_find_bracket.c
+# MAP    src/pcre2_jit_compile.c      pcre2_jit_compile.c
+# MAP    src/pcre2_jit_match.c        pcre2_jit_match.c
+# MAP    src/pcre2_jit_misc.c         pcre2_jit_misc.c
 # MAP    src/pcre2_maketables.c       pcre2_maketables.c
 # MAP    src/pcre2_match.c            pcre2_match.c
 # MAP    src/pcre2_match_data.c       pcre2_match_data.c

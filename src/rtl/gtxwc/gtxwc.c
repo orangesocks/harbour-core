@@ -11,13 +11,13 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.   If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -35,7 +35,7 @@
  * Project under the name Harbour.  If you copy code from other
  * Harbour Project or Free Software Foundation releases into a copy of
  * Harbour, as the General Public License permits, the exception does
- * not apply to the code that you add in this way.   To avoid misleading
+ * not apply to the code that you add in this way.  To avoid misleading
  * anyone as to the status of such modified files, you must delete
  * this exception notice from them.
  *
@@ -310,7 +310,7 @@ typedef struct
 static void hb_gt_xwc_ProcessMessages( PXWND_DEF wnd, HB_BOOL fSync );
 static void hb_gt_xwc_InvalidatePts( PXWND_DEF wnd, int left, int top, int right, int bottom );
 static void hb_gt_xwc_InvalidateChar( PXWND_DEF wnd, int left, int top, int right, int bottom );
-static void hb_gt_xwc_SetSelection( PXWND_DEF wnd, const char * szData, HB_SIZE ulSize, HB_BOOL fCopy );
+static void hb_gt_xwc_SetSelection( PXWND_DEF wnd, const char * szData, HB_SIZE nSize, HB_BOOL fCopy );
 
 /************************ globals ********************************/
 
@@ -1425,6 +1425,8 @@ static HB_BOOL hb_gt_xwc_DefineBoxChar( PXWND_DEF wnd, HB_USHORT usCh, XWC_CharT
 
          case HB_BOXCH_FULL_B:
             inverse = HB_TRUE;
+            /* fallthrough */
+
          case HB_BOXCH_FULL_T:
             rect[ 0 ].x = 0;
             rect[ 0 ].y = 0;
@@ -1436,6 +1438,8 @@ static HB_BOOL hb_gt_xwc_DefineBoxChar( PXWND_DEF wnd, HB_USHORT usCh, XWC_CharT
 
          case HB_BOXCH_FULL_R:
             inverse = HB_TRUE;
+            /* fallthrough */
+
          case HB_BOXCH_FULL_L:
             rect[ 0 ].x = 0;
             rect[ 0 ].y = 0;
@@ -2719,7 +2723,7 @@ static void hb_gt_xwc_ProcessKey( PXWND_DEF wnd, XKeyEvent * evt )
    {
       i = Xutf8LookupString( wnd->ic, evt, buf, ( int ) sizeof( buf ), &outISO, &status_return );
       buf[ HB_MAX( i, 0 ) ] = '\0';
-      printf( "UTF8: KeySym=%lx, keySymISO=%lx, keystr[%d]='%s'\n", out, outISO, i, buf ); fflush( stdout );
+      printf( "UTF-8: KeySym=%lx, keySymISO=%lx, keystr[%d]='%s'\n", out, outISO, i, buf ); fflush( stdout );
    }
    else
 #  endif
@@ -2939,7 +2943,7 @@ static void hb_gt_xwc_ProcessKey( PXWND_DEF wnd, XKeyEvent * evt )
       if( i <= 0 )
       {
          /*
-          * This is a temporary hack for Latin-x input see gt_SetKeyCP
+          * This is a temporary hack for Latin-x input see gt_SetKeyCP()
           */
          if( outISO >= 0x0100 && outISO <= 0x0fff && ( outISO & 0x80 ) == 0x80 )
          {
@@ -3165,7 +3169,9 @@ static void hb_gt_xwc_WndProc( PXWND_DEF wnd, XEvent * evt )
                         break;
 
                      nI += hb_cdpTextPutU16( wnd->utf8CDP, pBuffer + nI, nSize - nI, usChar );
-                     /* nI += hb_cdpU16CharToUTF8( pBuffer + nI, &usChar ); */
+                     #if 0
+                     nI += hb_cdpU16CharToUTF8( pBuffer + nI, &usChar );
+                     #endif
                   }
                   if( wnd->markTop < wnd->markBottom )
                      pBuffer[ nI++ ] = '\n';
@@ -3382,14 +3388,14 @@ static void hb_gt_xwc_WndProc( PXWND_DEF wnd, XEvent * evt )
 
             if( cdpin && cdpin != wnd->utf8CDP )
             {
-               HB_SIZE ulLen = wnd->ClipboardSize;
+               HB_SIZE nLen = wnd->ClipboardSize;
                unsigned char * pBuffer = ( unsigned char * )
-                     hb_cdpnDup( ( const char * ) wnd->ClipboardData, &ulLen,
+                     hb_cdpnDup( ( const char * ) wnd->ClipboardData, &nLen,
                                  wnd->utf8CDP, cdpin );
 
                XChangeProperty( wnd->dpy, req->requestor, req->property,
                                 s_atomString, 8, PropModeReplace,
-                                pBuffer, ulLen );
+                                pBuffer, nLen );
                hb_xfree( pBuffer );
             }
             else
@@ -3525,7 +3531,7 @@ static void hb_gt_xwc_WndProc( PXWND_DEF wnd, XEvent * evt )
  */
 
 /* *********************************************************************** */
-/* collor allocation */
+/* color allocation */
 static int hb_gt_xwc_GetColormapSize( PXWND_DEF wnd )
 {
    XVisualInfo visInfo, *visInfoPtr;
@@ -3798,7 +3804,9 @@ static void hb_gt_xwc_RepaintChar( PXWND_DEF wnd, int colStart, int rowStart, in
                   break;
 
                case CH_CHBX:
-                  /* hb_gt_xwc_DrawBoxChar( wnd, icol, irow, chTrans->u.ch16, color ); */
+                  #if 0
+                  hb_gt_xwc_DrawBoxChar( wnd, icol, irow, chTrans->u.ch16, color );
+                  #endif
                   break;
 
                case CH_NONE:
@@ -4368,7 +4376,9 @@ static HB_BOOL hb_gt_xwc_SetFont( PXWND_DEF wnd, const char * fontFace,
 
    /* a shortcut for window height and width */
    wnd->fontHeight = xfs->max_bounds.ascent + xfs->max_bounds.descent;
-   /* wnd->fontWidth = xfs->max_bounds.rbearing - xfs->min_bounds.lbearing; */
+   #if 0
+   wnd->fontWidth = xfs->max_bounds.rbearing - xfs->min_bounds.lbearing;
+   #endif
    wnd->fontWidth = xfs->max_bounds.width;
 
    if( wnd->xfs )
@@ -4392,11 +4402,11 @@ static void hb_gt_xwc_ClearSelection( PXWND_DEF wnd )
 
 /* *********************************************************************** */
 
-static void hb_gt_xwc_SetSelection( PXWND_DEF wnd, const char * szData, HB_SIZE ulSize, HB_BOOL fCopy )
+static void hb_gt_xwc_SetSelection( PXWND_DEF wnd, const char * szData, HB_SIZE nSize, HB_BOOL fCopy )
 {
    HB_XWC_XLIB_LOCK( wnd->dpy );
 
-   if( ulSize == 0 )
+   if( nSize == 0 )
       hb_gt_xwc_ClearSelection( wnd );
 
    if( wnd->ClipboardData != NULL )
@@ -4405,17 +4415,17 @@ static void hb_gt_xwc_SetSelection( PXWND_DEF wnd, const char * szData, HB_SIZE 
       wnd->ClipboardData = NULL;
    }
 
-   wnd->ClipboardSize = ulSize;
+   wnd->ClipboardSize = nSize;
    wnd->ClipboardTime = wnd->lastEventTime;
    wnd->ClipboardOwner = HB_FALSE;
 
-   if( ulSize > 0 )
+   if( nSize > 0 )
    {
       if( fCopy )
       {
-         wnd->ClipboardData = ( unsigned char * ) hb_xgrab( ulSize + 1 );
-         memcpy( wnd->ClipboardData, szData, ulSize );
-         wnd->ClipboardData[ ulSize ] = '\0';
+         wnd->ClipboardData = ( unsigned char * ) hb_xgrab( nSize + 1 );
+         memcpy( wnd->ClipboardData, szData, nSize );
+         wnd->ClipboardData[ nSize ] = '\0';
       }
       else
          wnd->ClipboardData = ( unsigned char * ) HB_UNCONST( szData );
@@ -4685,7 +4695,7 @@ static void hb_gt_xwc_DissConnectX( PXWND_DEF wnd )
       wnd->dpy = NULL;
 
       /* Hack to avoid race condition inside some XLIB library - it looks
-       * in heavy stres MT tests that it can receive some events bound with
+       * in heavy stress MT tests that it can receive some events bound with
        * destroyed objects and executes our error handler.
        */
       s_fIgnoreErrors = HB_TRUE;
@@ -4727,7 +4737,7 @@ static void hb_gt_xwc_SetResizing( PXWND_DEF wnd )
 
    /* with StaticGravity XMoveWindow expects upper left corner of client area
     * and with NorthWestGravity it expect upper left corner of window with
-    * frame and title bar. ConfigureNotify always returns client area possition
+    * frame and title bar. ConfigureNotify always returns client area position
     * so working with NorthWestGravity it's necessary to update cords returned
     * to user in hb_gt_xwc_UpdateWindowCords()
     */
@@ -4953,10 +4963,14 @@ static void hb_gt_xwc_Init( PHB_GT pGT, HB_FHANDLE hFilenoStdin, HB_FHANDLE hFil
    HB_GTSELF_SEMICOLD( pGT );
 
    /* For immediate connection to XSarver and screen Window show */
-   /* hb_gt_xwc_RealRefresh( wnd, HB_TRUE ); */
+   #if 0
+   hb_gt_xwc_RealRefresh( wnd, HB_TRUE );
+   #endif
 
    /* For connection to XSarver only */
-   /* hb_gt_xwc_ConnectX( wnd, HB_TRUE ); */
+   #if 0
+   hb_gt_xwc_ConnectX( wnd, HB_TRUE );
+   #endif
 }
 
 /* *********************************************************************** */
@@ -5094,7 +5108,9 @@ static int hb_gt_xwc_ReadKey( PHB_GT pGT, int iEventMask )
 
    wnd = HB_GTXWC_GET( pGT );
    hb_gt_xwc_LateRefresh( wnd );
-   /* hb_gt_xwc_RealRefresh( wnd, HB_FALSE ); */
+   #if 0
+   hb_gt_xwc_RealRefresh( wnd, HB_FALSE );
+   #endif
 
    if( hb_gt_xwc_GetCharFromInputQueue( wnd, &c ) )
       return c;
@@ -5606,7 +5622,9 @@ static HB_BOOL hb_gt_xwc_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
                   /* this mode is not supported yet by GTXWC */
                   break;
                case HB_GTI_RESIZEMODE_ROWS:
-                  /* wnd->iResizeMode = iVal; */
+                  #if 0
+                  wnd->iResizeMode = iVal;
+                  #endif
                   break;
             }
          }

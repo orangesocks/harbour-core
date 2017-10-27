@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA (or visit
- * their website at https://www.gnu.org/).
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (or visit their website at https://www.gnu.org/licenses/).
  *
  */
 
@@ -429,7 +429,7 @@ static procedure addentry( aEntry, e, fn, cat, cAlias )
         e[ 'TEMPLATE' ] := 'Statement'
       elseif ( upper( e[ 'NAME' ] ) == e[ 'NAME' ] .and. ;
            ( ! '(' $ e[ 'NAME' ] .or. e[ 'NAME' ] == '( )' ) ) .or. ;
-         hb_lefteq( e[ 'NAME' ], '= ' )  // f.e. "= (assign)"
+         hb_lefteq( e[ 'NAME' ], '= ' )  // e.g. "= (assign)"
         e[ 'TEMPLATE' ] := 'Command'
       elseif 'METHODSLINK' $ e
         e[ 'TEMPLATE' ] := 'Class'
@@ -595,7 +595,7 @@ static function entrysort( e )
     "PLATFORMS"     , ;
     "FILES"         , ;
     "TAGS"          , ;
-    "SEEALSO"        }
+    "SEEALSO"       }
 
   local n := { => }, tmp
 

@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -354,9 +354,9 @@ FUNCTION __hbdoc_FilterOut( cFile )
    hb_BChar( 0x01 ) + ;
    hb_BChar( 0x00 ) )
 
-FUNCTION __hbdoc_SaveHBD( cFileName, aEntry )
+FUNCTION __hbdoc_SaveHBD( cFileName, aEntry, cFormat )
 
-   LOCAL hFile
+   LOCAL hFile, cEOL
 
    IF HB_ISSTRING( cFileName ) .AND. ;
       HB_ISARRAY( aEntry )
@@ -366,8 +366,19 @@ FUNCTION __hbdoc_SaveHBD( cFileName, aEntry )
       ENDIF
 
       IF ( hFile := hb_vfOpen( cFileName, FO_CREAT + FO_TRUNC + FO_WRITE + FO_EXCLUSIVE ) ) != NIL
-         hb_vfWrite( hFile, _HBDOC_SIGNATURE )
-         hb_vfWrite( hFile, hb_Serialize( aEntry, HB_SERIALIZE_COMPRESS ) )
+         SWITCH hb_defaultValue( cFormat, "" )
+         CASE "binary"
+            hb_vfWrite( hFile, _HBDOC_SIGNATURE )
+            hb_vfWrite( hFile, hb_Serialize( aEntry, HB_SERIALIZE_COMPRESS ) )
+         CASE "json-dense"
+            hb_vfWrite( hFile, hb_jsonEncode( aEntry ) )
+         CASE "json"
+            /* fallthrough */
+         OTHERWISE
+            cEOL := Set( _SET_EOL, Chr( 10 ) )
+            hb_vfWrite( hFile, hb_jsonEncode( aEntry, .T. ) )
+            Set( _SET_EOL, cEOL )
+         ENDSWITCH
          hb_vfClose( hFile )
          RETURN .T.
       ENDIF
@@ -399,12 +410,18 @@ FUNCTION __hbdoc_LoadHBD( cFileName )
 
             aEntry := hb_Deserialize( cBuffer )
             cBuffer := NIL
-
-            IF ! HB_ISARRAY( aEntry )
-               aEntry := NIL
-            ENDIF
          ELSE
+            cBuffer := Space( hb_vfSize( hFile ) )
+            hb_vfSeek( hFile, 0, FS_SET )
+            hb_vfRead( hFile, @cBuffer, hb_BLen( cBuffer ) )
             hb_vfClose( hFile )
+
+            aEntry := hb_jsonDecode( cBuffer )
+            cBuffer := NIL
+         ENDIF
+
+         IF ! HB_ISARRAY( aEntry )
+            aEntry := NIL
          ENDIF
       ENDIF
    ENDIF

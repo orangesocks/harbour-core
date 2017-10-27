@@ -27,7 +27,7 @@ Author: Viktor Szakats <https://vszakats.net/>"
 }
 
 mxe_curl() {
-  curl -fsS --connect-timeout 15 --retry 3 "$@"
+  curl -fsS --connect-timeout 15 -m 540 --retry 3 "$@"
 }
 
 mxe_get_pkg() {
@@ -81,7 +81,7 @@ mxe_get_pkg() {
             rm -f pack.bin
 
             for i in ${deps//,/}; do
-              mxe_get_pkg "$i"  # recurse
+              mxe_get_pkg "${i}"  # recurse
             done
           else
             echo "! Error: Download failed."
@@ -111,15 +111,18 @@ mkdir -p "${MXE_HOME}"
   base='http://pkg.mxe.cc/repos/apt/debian'  # APT root
   suid='D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB'  # Signer UID
 
-  alias gpg='gpg --batch --keyserver-options timeout=15 --keyid-format LONG'
+  alias gpg='gpg --batch --keyid-format LONG'
 
   echo "! Downloading and verifying MXE package list..."
   mxe_curl \
     -O "${base}/dists/wheezy/Release.gpg" \
     -O "${base}/dists/wheezy/Release"
-  mxe_curl \
-    "https://keyserver.ubuntu.com/pks/lookup?search=0x${suid}&op=get" \
-  | gpg --import --status-fd 1
+  (
+    set -x
+    mxe_curl \
+      "https://keyserver.ubuntu.com/pks/lookup?search=0x${suid}&op=get" \
+    | gpg --import --status-fd 1
+  )
   gpg --verify-options show-primary-uid-only --verify Release.gpg Release || exit 1
   mxe_curl \
     -O "${base}/dists/wheezy/main/binary-amd64/Packages.gz"

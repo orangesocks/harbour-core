@@ -17,9 +17,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -777,7 +777,7 @@ STATIC PROCEDURE ProcessBlock( hEntry, docs, hNameID, /* @ */ nCount, /* @ */ nC
          DO WHILE hb_BRight( cSection, hb_BLen( _DOC_EOL ) ) == _DOC_EOL
             cSection := hb_StrShrink( cSection, Len( _DOC_EOL ) )
          ENDDO
-         /* Readd one if multi-line */
+         /* Re-add one if multi-line */
          IF _DOC_EOL $ cSection
             cSection += _DOC_EOL
          ENDIF
@@ -1202,7 +1202,7 @@ FUNCTION NameIsOperator( cName )
    RETURN ;
       hb_StrReplace( hb_asciiLower( cName ), "abcdefghijklmnopqrstuvwxyz" ) == hb_asciiLower( cName ) .OR. ;
       "|" + Upper( cName ) + "|" $ "|.AND.|.OR.|.NOT.|" .OR. ;
-      hb_LeftEq( cName, "= " )  // f.e. "= (assign)"
+      hb_LeftEq( cName, "= " )  // e.g. "= (assign)"
 
 FUNCTION NameIsDirective( cName )
 
@@ -1476,11 +1476,11 @@ STATIC PROCEDURE init_Templates()
 
    hb_HCaseMatch( sc_hFields, .F. )
 
-   #define _T TPL_TEMPLATE
-   #define _R TPL_REQUIRED
-   #define _O TPL_OPTIONAL
-   #define _P TPL_PREFORMATTED
-   #define _U TPL_OUTPUT
+   #define _T  TPL_TEMPLATE
+   #define _R  TPL_REQUIRED
+   #define _O  TPL_OPTIONAL
+   #define _P  TPL_PREFORMATTED
+   #define _U  TPL_OUTPUT
 
    /* The columns of this array correspond to the elements of sc_hFields */
    sc_hTemplates := { ;
@@ -1670,8 +1670,8 @@ FUNCTION hbdoc_SymbolSource( cDir, cName, /* @ */ nLine, /* @ */ cRedir )
    RETURN result[ 1 ]
 
 #if defined( __HBSCRIPT__HBSHELL )
-SET PROCEDURE TO "_genbase.prg"
-SET PROCEDURE TO "_gentxt.prg"
-SET PROCEDURE TO "_genhtml.prg"
-SET PROCEDURE TO "_genxml.prg"
+SET PROCEDURE TO "_base.prg"
+SET PROCEDURE TO "_html.prg"
+SET PROCEDURE TO "_txt.prg"
+SET PROCEDURE TO "_xml.prg"
 #endif

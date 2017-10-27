@@ -39,6 +39,12 @@ A `GTWVG` alternative with multi-window support.
 
 AMF file format handling
 
+{% if site.fork %}
+## hbamqp
+
+AMQP API via librabbitmq-c bindings
+
+{% endif %}
 ## hbblink
 
 Blinker compatibility
@@ -143,10 +149,12 @@ HTTP/HTTPS server
 
 ICU bindings/puller
 
+{%- unless site.fork %}
 ## hblzf
 
 LZF bindings (compression)
 
+{%- endunless %}
 ## hbmac (Mac-only)
 
 Apple Mac specific functions
@@ -192,17 +200,19 @@ OSLib (Dave Pearson's) compatibility
 
 ## hbpgsql
 
-Low Level API bindings for PostgreSQL RDBMS. Includes a `dbf2pg.prg` utility to
+Low-level API bindings for PostgreSQL RDBMS. Includes a `dbf2pg.prg` utility to
 convert a `.dbf` file into a PostgreSQL table.
 
 ## hbsqlit3
 
 SQLite3 bindings. This library allow access an SQLite3 databases using Harbour.
 
+{%- unless site.fork %}
 ## hbsms
 
 SMS handling functions
 
+{%- endunless %}
 ## hbssl
 
 OpenSSL bindings. Supports SSL, SSL_CIPHER, SSL_CTX, RAND, SSL_SESSION (and
@@ -217,12 +227,14 @@ Regression test framework
 Object-oriented internet protocol library, written in Harbour. Supports HTTP,
 HTTPS, SMTP, SMTPS, POP3, FTP and more.
 
+{%- unless site.fork %}
 ## hbtpathy
 
 Telepath(y) emulation library. Telepath(y) is the best serial communication
 library for Nantucket/CA-Clipper and this library has a significant
 amount of the functionality contained in Telepath(y) in this Harbour port.
 
+{%- endunless %}
 ## hbunix (\*nix-only)
 
 Unix specific functions
@@ -239,14 +251,22 @@ these features are:
 * DLL handling functions
 * …and more
 
+{% unless site.fork %}
 ## hbxdiff
 
 libxdiff bindings (diffing)
 
+{%- endunless %}
 ## [hbxpp](https://harbour.github.io/doc/hbxpp.html)
 
 Xbase++ compatibility
 
+{% if site.fork %}
+## hbyaml
+
+libyaml bindings for YAML parsing
+
+{% endif %}
 ## hbzebra
 
 Barcode creating functions
@@ -282,10 +302,12 @@ MariaDB/MySQL (via `sddmy`), Firebird (via `sddfb`) and ODBC servers
 
 I/O driver for BZIP2 compressed streams
 
+{%- unless site.fork %}
 ## hbcomio
 
 I/O driver for serial port streams
 
+{%- endunless %}
 ## hbgzio
 
 I/O driver for GZIP compressed streams

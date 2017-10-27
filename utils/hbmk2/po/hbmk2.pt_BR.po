@@ -1039,7 +1039,7 @@ msgid "create (or not) a map file"
 msgstr "criar (ou não) o arquivo map"
 
 #, c-format
-msgid "create (or not) an import library (in -hbdyn/-hbexe mode). The name will have a postfix added."
+msgid "create (or not) an import library (in -hbdyn/-hbexe mode). The name will have a suffix added."
 msgstr "criar (ou não) uma biblioteca importação (no modo -hbdyn/-hbexe). O nome terá um sufixo adicionado."
 
 #, c-format
@@ -1375,8 +1375,8 @@ msgid "enable pure C mode"
 msgstr "ativa modo C puro"
 
 #, c-format
-msgid "enable xhb mode"
-msgstr "habilitar modo xHb"
+msgid "enable xHarbour mode"
+msgstr "habilitar modo xHarbour"
 
 #, c-format
 msgid "fix casing of Harbour function names to their 'official' format. Core functions and functions belonging to all active contribs/addons with an .hbx file will be processed. [EXPERIMENTAL]"
@@ -1943,8 +1943,8 @@ msgid "static build (see -static and related options)"
 msgstr "construção compartilhada (veja -static e opções relativas)"
 
 #, c-format
-msgid "target C compiler belongs to gcc family (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, open64, pcc)"
-msgstr "o compilador C alvo pertence a família gcc.(gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, open64, pcc)"
+msgid "target C compiler belongs to gcc family (gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, clang64, open64, pcc)"
+msgstr "o compilador C alvo pertence a família gcc.(gcc, mingw, mingw64, mingwarm, djgpp, gccomf, clang, clang64, open64, pcc)"
 
 #, c-format
 msgid "target C compiler is bcc* (bcc, bcc64)"
@@ -1995,8 +1995,8 @@ msgid "Windows UNICODE (WIDE) mode (see -winuni option)"
 msgstr "Modo Windows UNICODE (WIDE) (veja opção -winuni)"
 
 #, c-format
-msgid "xhb mode (see -xhb option)"
-msgstr "modo xhb (veja opção -xhb)"
+msgid "xHarbour mode (see -xhb option)"
+msgstr "modo xHarbour (veja opção -xhb)"
 
 #, c-format
 msgid ".hbc directives (they should be written in separate lines):"

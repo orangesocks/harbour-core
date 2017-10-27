@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -52,6 +52,7 @@
 
 #define HB_GT_NAME  PCA
 
+#include "hbapi.h"
 #include "hbgtcore.h"
 #include "hbinit.h"
 #include "hbapifs.h"
@@ -147,22 +148,30 @@ static void sig_handler( int iSigNo )
 #endif
 #ifdef SIGWINCH
       case SIGWINCH:
-         /* s_WinSizeChangeFlag = HB_TRUE; */
+         #if 0
+         s_WinSizeChangeFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGINT
       case SIGINT:
-         /* s_InetrruptFlag = HB_TRUE; */
+         #if 0
+         s_InetrruptFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGQUIT
       case SIGQUIT:
-         /* s_BreakFlag = HB_TRUE; */
+         #if 0
+         s_BreakFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGTSTP
       case SIGTSTP:
-         /* s_DebugFlag = HB_TRUE; */
+         #if 0
+         s_DebugFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGTTOU
@@ -248,7 +257,7 @@ static void hb_gt_pca_AnsiGetCurPos( int * iRow, int * iCol )
       timer = hb_timerInit( timeout );
       for( ;; )
       {
-         /* loking for cursor position in "\033[%d;%dR" */
+         /* looking for cursor position in "\033[%d;%dR" */
          while( j < n && rdbuf[ j ] != '\033' )
             ++j;
          if( n - j >= 6 )
@@ -495,7 +504,9 @@ static void hb_gt_pca_Init( PHB_GT pGT, HB_FHANDLE hFilenoStdin, HB_FHANDLE hFil
 
       tcgetattr( hFilenoStdin, &s_saved_TIO );
       memcpy( &s_curr_TIO, &s_saved_TIO, sizeof( struct termios ) );
-      /* atexit( restore_input_mode ); */
+      #if 0
+      atexit( restore_input_mode );
+      #endif
       s_curr_TIO.c_lflag &= ~( ICANON | ECHO );
       s_curr_TIO.c_iflag &= ~ICRNL;
 #if 0

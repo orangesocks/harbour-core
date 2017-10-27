@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA (or visit
- * their website at https://www.gnu.org/).
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (or visit their website at https://www.gnu.org/licenses/).
  *
  */
 
@@ -45,7 +45,7 @@ STATIC sc_hActions := { ;
    _ACT_INC_REBUILD_INST => "rebuild and install" }
 
 STATIC s_cRoot    /* source tree root directory */
-STATIC s_cHome    /* project store root directory (f.e. 'contrib/') */
+STATIC s_cHome    /* project store root directory (e.g. 'contrib/') */
 STATIC s_cBinDir  /* directory where the hbmk2 executing this script resides */
 
 STATIC s_lCoreBuild
@@ -105,7 +105,6 @@ PROCEDURE Main( ... )
    /* Load list of projects */
 
    LoadProjectListAutomatic( hProjectList )
-   LoadProjectListFromString( hProjectList, GetEnv( "HB_BUILD_ADDONS" ) )
 
    IF AScanL( aParams, "verbose" ) > 0
       hb_SetEnv( "HB_BUILD_VERBOSE", "yes" )
@@ -141,7 +140,7 @@ STATIC PROCEDURE BuildSingle( aParams, hProjectList )
 
    LOCAL lPassThrough_hbmk2 := .F.
 
-   /* Processing cmdline options */
+   /* Processing command-line options */
 
    DO CASE
    CASE AScanL( aParams, "clean" ) > 0 .AND. ;
@@ -176,7 +175,7 @@ STATIC PROCEDURE BuildSingle( aParams, hProjectList )
          cOptionsUser += " " + tmp
 
          /* If anything else is passed than options or GNU Make keywords,
-            switch to hbmk2 pass-through mode, f.e. in tests */
+            switch to hbmk2 pass-through mode, e.g. in tests */
          IF ! hb_LeftEq( tmp, "-" )
             lPassThrough_hbmk2 := .T.
          ENDIF
@@ -192,7 +191,7 @@ STATIC PROCEDURE BuildSingle( aParams, hProjectList )
       /* Find out which projects are in current dir, these will be our
          primary targets */
       FOR EACH tmp IN hProjectList
-         IF hb_LeftEq( hb_DirSepToOS( tmp:__enumKey() ) + hb_ps(), hb_FNameNameExt( hb_DirSepDel( hb_cwd() ) ) )  /* Not ultimate solution */
+         IF hb_LeftEq( hb_DirSepToOS( tmp:__enumKey() ) + hb_ps(), hb_FNameNameExt( hb_DirSepDel( hb_cwd() ) ) + hb_ps() )  /* Not ultimate solution */
             hProjectReqList[ tmp:__enumKey() ] := tmp:__enumKey()
          ENDIF
       NEXT
@@ -267,7 +266,7 @@ STATIC PROCEDURE BuildAll( aParams, hProjectList )
          AScanL( aGNUMakeParams, "install" ) > 0 .AND. ;
          AScanL( aGNUMakeParams, "install" ) > AScanL( aGNUMakeParams, "clean" )
          /* Use rebuild mode. This is needed because the clean phase might not
-            have been called previously by core GNU Make, f.e. because hbrun
+            have been called previously by core GNU Make, e.g. because hbrun
             or hbmk2 wasn't available. -rebuildall is costless, so we do it to
             make sure to build cleanly. [vszakats] */
          nAction := _ACT_INC_REBUILD_INST
@@ -466,7 +465,8 @@ STATIC PROCEDURE build_projects( nAction, hProjectList, hProjectReqList, cOption
             /* Build dynamic lib */
             IF GetEnv( "HB_BUILD_CONTRIB_DYN" ) == "yes" .AND. hProjectList[ cProject ][ "cType" ] == "hblib"
                /* Is this a platform where import libs are used? */
-               IF "|" + hProjectList[ cProject ][ "cPlatform" ] + "|" $ "|win|dos|os2|"
+               IF "|" + hProjectList[ cProject ][ "cPlatform" ] + "|" $ "|win|dos|os2|" .AND. ;
+                  ! "|" + GetEnv( "HB_COMPILER" ) + "|" $ "|mingw|mingw64|clang|clang64|"
                   cDynSuffix := "_dll"
                ELSE
                   cDynSuffix := ""
@@ -548,7 +548,7 @@ STATIC PROCEDURE call_hbmk2_hbinfo( cProjectRoot, cProjectName, hProject )
          ENDIF
       NEXT
    ELSE
-      OutStd( hb_StrFormat( "! Warning: 'hbmk2 %1$s --hbinfo' failed with exit code %2$d", cProjectPath, nErrorLevel ) + hb_eol() )
+      OutStd( hb_StrFormat( "! Warning: 'hbmk2 %1$s --hbinfo' failed with exit status %2$d", cProjectPath, nErrorLevel ) + hb_eol() )
    ENDIF
 
    RETURN
@@ -809,16 +809,6 @@ STATIC PROCEDURE LoadProjectListAutomatic( hProjectList )
             NEXT
          ENDIF
       ENDIF
-   NEXT
-
-   RETURN
-
-STATIC PROCEDURE LoadProjectListFromString( hProjectList, cString )
-
-   LOCAL cItem
-
-   FOR EACH cItem IN hb_ATokens( cString,, .T. )
-      AddProject( hProjectList, cItem )
    NEXT
 
    RETURN

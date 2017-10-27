@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -48,6 +48,7 @@
 
 #define HB_GT_NAME  STD
 
+#include "hbapi.h"
 #include "hbgtcore.h"
 #include "hbinit.h"
 #include "hbapifs.h"
@@ -145,22 +146,30 @@ static void sig_handler( int iSigNo )
 #endif
 #ifdef SIGWINCH
       case SIGWINCH:
-         /* s_WinSizeChangeFlag = HB_TRUE; */
+         #if 0
+         s_WinSizeChangeFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGINT
       case SIGINT:
-         /* s_InetrruptFlag = HB_TRUE; */
+         #if 0
+         s_InetrruptFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGQUIT
       case SIGQUIT:
-         /* s_BreakFlag = HB_TRUE; */
+         #if 0
+         s_BreakFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGTSTP
       case SIGTSTP:
-         /* s_DebugFlag = HB_TRUE; */
+         #if 0
+         s_DebugFlag = HB_TRUE;
+         #endif
          break;
 #endif
 #ifdef SIGTSTP
@@ -235,7 +244,9 @@ static void hb_gt_std_Init( PHB_GT pGT, HB_FHANDLE hFilenoStdin, HB_FHANDLE hFil
 
       tcgetattr( pGTSTD->hStdin, &pGTSTD->saved_TIO );
       memcpy( &pGTSTD->curr_TIO, &pGTSTD->saved_TIO, sizeof( struct termios ) );
-      /* atexit( restore_input_mode ); */
+      #if 0
+      atexit( restore_input_mode );
+      #endif
       pGTSTD->curr_TIO.c_lflag &= ~( ICANON | ECHO );
       pGTSTD->curr_TIO.c_iflag &= ~ICRNL;
 #if 0

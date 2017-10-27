@@ -16,9 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt   If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -67,11 +67,11 @@ static  HB_GT_FUNCS           SuperTable;
 
 #ifdef HB_QT_NEEDLOCKS
    static QMutex s_qMtx( QMutex::Recursive );
-   #define HB_QTC_LOCK()       do { s_qMtx.lock()
-   #define HB_QTC_UNLOCK()     s_qMtx.unlock(); } while( 0 )
+#  define HB_QTC_LOCK()       do { s_qMtx.lock()
+#  define HB_QTC_UNLOCK()     s_qMtx.unlock(); } while( 0 )
 #else
-   #define HB_QTC_LOCK()       do {} while( 0 )
-   #define HB_QTC_UNLOCK()     do {} while( 0 )
+#  define HB_QTC_LOCK()       do {} while( 0 )
+#  define HB_QTC_UNLOCK()     do {} while( 0 )
 #endif
 
 static QApplication * s_qtapp = NULL;
@@ -1819,7 +1819,7 @@ static void hb_gt_qtc_Tone( PHB_GT pGT, double dFrequency, double dDuration )
    HB_SYMBOL_UNUSED( dFrequency );
    HB_SYMBOL_UNUSED( dDuration );
 
-   /* TODO: add support for sth more advanced then simple system beep */
+   /* TODO: add support for something more advanced then simple system beep */
    QApplication::beep();
 }
 
@@ -2314,6 +2314,7 @@ static HB_BOOL hb_gt_qtc_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
                {
                   case 0:
                      iDepth = 32;
+                     /* fallthrough */
                   case 32:
                      format = QImage::Format_RGB32;
                      break;
@@ -2574,15 +2575,19 @@ QTConsole::QTConsole( PHB_GTQTC pStructQTC, QWidget *parnt ) : QWidget( parnt )
    /* Warning! Qt::WA_KeyCompression attribute creates problems when
     * barcode readers are used - some characters are eaten [druzus]
     */
-   /* setAttribute( Qt::WA_KeyCompression ); */
+   #if 0
+   setAttribute( Qt::WA_KeyCompression );
+   #endif
 
    /* Qt::WA_InputMethodEnabled disables support for
     * national characters in few European countries
-    * (f.e. Polish characters with ALT in macOS)
+    * (e.g. Polish characters with ALT in macOS)
     * If some Asian users needs it then we will have
     * to enable it optionally [druzus]
     */
-   /* setAttribute( Qt::WA_InputMethodEnabled ); */
+   #if 0
+   setAttribute( Qt::WA_InputMethodEnabled );
+   #endif
 
 #if defined( HB_OS_ANDROID ) || defined( HB_OS_IOS ) || defined( HB_OS_WIN_CE )
    setInputMethodHints( Qt::ImhNoPredictiveText );

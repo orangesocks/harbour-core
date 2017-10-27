@@ -16,7 +16,7 @@
  * Copyright 1999 David G. Holm <dholm@jsd-llc.com>
  *    hb_gt_Tone()
  *
- * Copyright 2003-2004 Giancarlo Niccolai <gc at niccolai dot ws>
+ * Copyright 2003-2004 Giancarlo Niccolai <gc@niccolai.ws>
  *         Standard xplatform GT Info system,
  *         Graphical object system and event system.
  *         hb_gtInfo() And GTO_* implementation.
@@ -26,18 +26,18 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option )
+ * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.   If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/ ).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -55,7 +55,7 @@
  * Project under the name Harbour.  If you copy code from other
  * Harbour Project or Free Software Foundation releases into a copy of
  * Harbour, as the General Public License permits, the exception does
- * not apply to the code that you add in this way.   To avoid misleading
+ * not apply to the code that you add in this way.  To avoid misleading
  * anyone as to the status of such modified files, you must delete
  * this exception notice from them.
  *
@@ -140,7 +140,9 @@ static const TCHAR s_szClassName[] = TEXT( "Harbour_WVT_Class" );
 
 static LRESULT CALLBACK hb_gt_wvt_WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 static HB_BOOL hb_gt_wvt_FullScreen( PHB_GT pGT );
+#if defined( UNICODE )
 static void hb_gt_wvt_ResetBoxCharBitmaps( PHB_GTWVT pWVT );
+#endif
 
 static void hb_gt_wvt_RegisterClass( HINSTANCE hInstance )
 {
@@ -149,13 +151,15 @@ static void hb_gt_wvt_RegisterClass( HINSTANCE hInstance )
    memset( &wndclass, 0, sizeof( wndclass ) );
    wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
    wndclass.lpfnWndProc   = hb_gt_wvt_WndProc;
-/* wndclass.cbClsExtra    = 0; */
-/* wndclass.cbWndExtra    = 0; */
    wndclass.hInstance     = hInstance;
-/* wndclass.hIcon         = NULL; */
    wndclass.hCursor       = LoadCursor( NULL, IDC_ARROW );
-/* wndclass.hbrBackground = NULL; */
-/* wndclass.lpszMenuName  = NULL; */
+#if 0
+   wndclass.cbClsExtra    = 0;
+   wndclass.cbWndExtra    = 0;
+   wndclass.hIcon         = NULL;
+   wndclass.hbrBackground = NULL;
+   wndclass.lpszMenuName  = NULL;
+#endif
    wndclass.lpszClassName = s_szClassName;
 
    if( ! RegisterClass( &wndclass ) )
@@ -234,6 +238,15 @@ static void hb_gt_wvt_Free( PHB_GTWVT pWVT )
    }
 
    HB_WVT_UNLOCK();
+
+   while( pWVT->pMenu )
+   {
+      PHB_GTWVT_MNU pMenu = pWVT->pMenu;
+
+      pWVT->pMenu = pMenu->pNext;
+      hb_strfree( pWVT->hSelectCopy );
+      hb_xfree( pMenu );
+   }
 
    if( pWVT->hSelectCopy )
       hb_strfree( pWVT->hSelectCopy );
@@ -315,7 +328,7 @@ static PHB_GTWVT hb_gt_wvt_New( PHB_GT pGT, HINSTANCE hInstance, int iCmdShow )
    pWVT->COLORS[ 14 ]      = YELLOW;
    pWVT->COLORS[ 15 ]      = WHITE;
 
-   /* THESE are the default font parameters, if not changed by user */
+   /* These are the default font parameters, if not changed by user */
    pWVT->PTEXTSIZE.x       = WVT_DEFAULT_FONT_WIDTH;
    pWVT->PTEXTSIZE.y       = WVT_DEFAULT_FONT_HEIGHT;
    pWVT->fontWidth         = WVT_DEFAULT_FONT_WIDTH;
@@ -364,6 +377,8 @@ static PHB_GTWVT hb_gt_wvt_New( PHB_GT pGT, HINSTANCE hInstance, int iCmdShow )
    pWVT->lpSelectCopy      = TEXT( "Mark and Copy" );
    pWVT->hSelectCopy       = NULL;
    pWVT->bSelectCopy       = HB_TRUE;
+
+   pWVT->pMenu             = NULL;
 
    {
       PHB_ITEM pItem = hb_itemPutCPtr( NULL, hb_cmdargBaseProgName() );
@@ -1376,6 +1391,7 @@ static HBITMAP hb_gt_wvt_DefineBoxChar( PHB_GTWVT pWVT, HB_USHORT usCh )
 
 /* *********************************************************************** */
 
+#if defined( UNICODE )
 static void hb_gt_wvt_ResetBoxCharBitmaps( PHB_GTWVT pWVT )
 {
    int i;
@@ -1389,6 +1405,7 @@ static void hb_gt_wvt_ResetBoxCharBitmaps( PHB_GTWVT pWVT )
    for( i = 0; i < HB_BOXCH_TRANS_COUNT; ++i )
       pWVT->boxIndex[ i ] = HB_BOXCH_TRANS_MAX;
 }
+#endif
 
 /* *********************************************************************** */
 
@@ -1826,7 +1843,7 @@ static void hb_gt_wvt_FitSize( PHB_GTWVT pWVT )
             else
             {
                /* I did it this way, so that "Courier New" would size and maximize as expected.
-                * "Courier New"  appears to not scale linearily, sometimes by just decreasing the
+                * "Courier New"  appears to not scale linearly, sometimes by just decreasing the
                 * font width by one with some font heights makes it all work out?
                 * This code never seems to get executed with "Lucida Console"
                 * Width scaling with some Heights is an issue with Courier New and Terminal
@@ -2526,6 +2543,7 @@ static HB_BOOL hb_gt_wvt_KeyEvent( PHB_GTWVT pWVT, UINT message, WPARAM wParam, 
                if( ( lParam & WVT_EXTKEY_FLAG ) == 0 )
                   break;
                iFlags |= HB_KF_CTRL;
+               /* fallthrough */
             case VK_PAUSE:
                pWVT->IgnoreWM_SYSCHAR = HB_TRUE;
                iKey = HB_KX_PAUSE;
@@ -2617,13 +2635,14 @@ static HB_BOOL hb_gt_wvt_KeyEvent( PHB_GTWVT pWVT, UINT message, WPARAM wParam, 
              ( iFlags & HB_KF_ALTGR ) != 0 )
             /* workaround for AltGR and some German/Italian keyboard */
             iFlags &= ~( HB_KF_CTRL | HB_KF_ALT | HB_KF_ALTGR );
+         /* fallthrough */
       case WM_SYSCHAR:
          iFlags = hb_gt_wvt_UpdateKeyFlags( iFlags );
          if( ! pWVT->IgnoreWM_SYSCHAR )
          {
             iKey = ( int ) wParam;
 
-            if( ( iFlags & HB_KF_CTRL ) != 0 && ( iKey >= 0 && iKey < 32 ) )
+            if( ( iFlags & HB_KF_CTRL ) != 0 && iKey >= 0 && iKey < 32 )
             {
                iKey += 'A' - 1;
                iKey = HB_INKEY_NEW_KEY( iKey, iFlags );
@@ -2785,7 +2804,7 @@ static HB_BOOL hb_gt_wvt_KeyEvent( PHB_GTWVT pWVT, UINT message, WPARAM wParam, 
 }
 
 /*
- * hb_gt_wvt_TextOut converts col and row to x and y ( pixels ) and calls
+ * Convert col and row to x and y ( pixels ) and calls
  * the Windows function TextOut with the expected coordinates
  */
 static void hb_gt_wvt_TextOut( PHB_GTWVT pWVT, HDC hdc, int col, int row, int iColor, LPCTSTR lpString, UINT cbString )
@@ -3123,13 +3142,22 @@ static LRESULT CALLBACK hb_gt_wvt_WndProc( HWND hWnd, UINT message, WPARAM wPara
          break;
 
       case WM_SYSCOMMAND:
-         switch( wParam )
+         if( wParam == SYS_EV_MARK )
          {
-
-            case SYS_EV_MARK:
+            pWVT->bBeginMarked = HB_TRUE;
+            return 0;
+         }
+         else if( wParam > SYS_EV_MARK )
+         {
+            PHB_GTWVT_MNU pMenu = pWVT->pMenu;
+            while( pMenu )
             {
-               pWVT->bBeginMarked = HB_TRUE;
-               return 0;
+               if( ( WPARAM ) pMenu->iEvent == wParam )
+               {
+                  hb_gt_wvt_AddCharToInputQueue( pWVT, pMenu->iKey );
+                  return 0;
+               }
+               pMenu = pMenu->pNext;
             }
          }
          break;
@@ -3157,7 +3185,9 @@ static void hb_gt_wvt_CreateWindow( PHB_GTWVT pWVT )
 {
    DWORD dwStyle;
 
-   /* InitCommonControls(); */
+   #if 0
+   InitCommonControls();
+   #endif
 
    dwStyle = pWVT->bResizable ? _WVT_WS_DEF : _WVT_WS_NORESIZE;
 
@@ -3192,13 +3222,23 @@ static HB_BOOL hb_gt_wvt_CreateConsoleWindow( PHB_GTWVT pWVT )
 
          {
             HMENU hSysMenu = GetSystemMenu( pWVT->hWnd, FALSE );
+
             if( hSysMenu )
             {
+               PHB_GTWVT_MNU pMenu = pWVT->pMenu;
+
                /* Create "Mark" prompt in SysMenu to allow console type copy operation */
                AppendMenu( hSysMenu, MF_STRING, SYS_EV_MARK, pWVT->lpSelectCopy );
                /* CloseButton [x] and "Close" window menu item */
                EnableMenuItem( hSysMenu, SC_CLOSE, MF_BYCOMMAND |
                                ( pWVT->CloseMode < 2 ? MF_ENABLED : MF_GRAYED ) );
+
+               /* Create user menu */
+               while( pMenu )
+               {
+                  AppendMenu( hSysMenu, MF_STRING, pMenu->iEvent, pMenu->lpName );
+                  pMenu = pMenu->pNext;
+               }
             }
          }
          if( pWVT->bFullScreen )
@@ -3366,7 +3406,9 @@ static void hb_gt_wvt_Init( PHB_GT pGT, HB_FHANDLE hFilenoStdin, HB_FHANDLE hFil
       HB_GTSELF_SETFLAG( pGT, HB_GTI_REDRAWMAX, 1 );
       HB_GTSELF_SEMICOLD( pGT );
 
-      /* hb_gt_wvt_CreateConsoleWindow( pWVT ); */
+      #if 0
+      hb_gt_wvt_CreateConsoleWindow( pWVT );
+      #endif
    }
    else
       hb_errInternal( 10001, "Maximum number of WVT windows reached, cannot create another one", NULL, NULL );
@@ -3698,6 +3740,7 @@ static HB_BOOL hb_gt_wvt_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
 
             default:
                iVal = 0;
+               break;
          }
          pInfo->pResult = hb_itemPutNI( pInfo->pResult, iVal );
          if( hb_itemType( pInfo->pNewVal ) & HB_IT_NUMERIC )
@@ -4091,6 +4134,64 @@ static HB_BOOL hb_gt_wvt_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
          }
          break;
 
+      case HB_GTI_SYSMENUADD:
+         pInfo->pResult = hb_itemPutL( pInfo->pResult, HB_FALSE );
+         if( hb_itemType( pInfo->pNewVal ) & HB_IT_NUMERIC )
+         {
+            iVal = hb_itemGetNI( pInfo->pNewVal );
+            if( iVal != 0 )
+            {
+               HB_BOOL fAdd = ( hb_itemType( pInfo->pNewVal2 ) & HB_IT_STRING ) != 0;
+               PHB_GTWVT_MNU * pMenu = &pWVT->pMenu;
+               int iEvent = SYS_EV_MARK;
+
+               while( * pMenu )
+               {
+                  if( ( * pMenu )->iKey == iVal )
+                     break;
+                  iEvent = HB_MAX( iEvent, ( * pMenu )->iEvent );
+                  pMenu = &( * pMenu )->pNext;
+               }
+               if( * pMenu )
+               {
+                  hb_strfree( ( * pMenu )->hName );
+                  iEvent = ( * pMenu )->iEvent;
+                  if( ! fAdd )
+                  {
+                     PHB_GTWVT_MNU pFree = * pMenu;
+                     * pMenu = ( * pMenu )->pNext;
+                     hb_xfree( pFree );
+                  }
+               }
+               else
+               {
+                  if( fAdd )
+                  {
+                     * pMenu = ( PHB_GTWVT_MNU ) hb_xgrab( sizeof( HB_GTWVT_MNU ) );
+                     ( * pMenu )->iKey   = iVal;
+                     ( * pMenu )->iEvent = iEvent + 1;
+                     ( * pMenu )->pNext  = NULL;
+                  }
+                  iEvent = 0;
+               }
+               if( fAdd )
+                  ( * pMenu )->lpName = HB_ITEMGETSTR( pInfo->pNewVal2, &( * pMenu )->hName, NULL );
+               if( pWVT->hWnd )
+               {
+                  HMENU hSysMenu = GetSystemMenu( pWVT->hWnd, FALSE );
+                  if( hSysMenu )
+                  {
+                     if( iEvent != 0 )
+                        DeleteMenu( hSysMenu, iEvent, MF_BYCOMMAND );
+                     if( fAdd )
+                        AppendMenu( hSysMenu, MF_STRING, ( * pMenu )->iEvent, ( * pMenu )->lpName );
+                  }
+               }
+               pInfo->pResult = hb_itemPutL( pInfo->pResult, fAdd || iEvent != 0 );
+            }
+         }
+         break;
+
       case HB_GTI_SELECTCOPY:
          if( hb_itemType( pInfo->pNewVal ) & HB_IT_STRING )
          {
@@ -4104,10 +4205,15 @@ static HB_BOOL hb_gt_wvt_Info( PHB_GT pGT, int iType, PHB_GT_INFO pInfo )
                   hb_strfree( pWVT->hSelectCopy );
                   pWVT->lpSelectCopy = HB_ITEMGETSTR( pInfo->pNewVal, &pWVT->hSelectCopy, NULL );
                   pWVT->bSelectCopy = HB_TRUE;
-#if ! defined( HB_OS_WIN_CE )  /* WinCE does not support ModifyMenu */
                   if( hSysMenu )
+                  {
+#if defined( HB_OS_WIN_CE )  /* WinCE does not support ModifyMenu */
+                     DeleteMenu( hSysMenu, SYS_EV_MARK, MF_BYCOMMAND );
+                     AppendMenu( hSysMenu, MF_STRING, SYS_EV_MARK, pWVT->lpSelectCopy );
+#else
                      ModifyMenu( hSysMenu, SYS_EV_MARK, MF_BYCOMMAND | MF_STRING | MF_ENABLED, SYS_EV_MARK, pWVT->lpSelectCopy );
 #endif
+                  }
                }
             }
          }

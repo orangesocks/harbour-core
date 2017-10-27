@@ -15,7 +15,7 @@ get_rpmmacro() {
   _R="$(rpm --showrc | sed -e "/^-14:.${1}[^a-z0-9A-Z_]/ !d" -e "s/^-14: ${1}.//")"
   _X="$(echo "${_R}" | sed -e 's/.*\(%{\([^}]*\)}\).*/\2/')"
   while [ "${_X}" != "${_R}" ]; do
-    _Y=$(get_rpmmacro "$_X")
+    _Y=$(get_rpmmacro "${_X}")
     if [ -n "${_Y}" ]; then
       _R="$(echo "${_R}" | sed -e "s!%{${_X}}!${_Y}!g")"
       _X="$(echo "${_R}" | sed -e 's/.*\(%{\([^}]*\)}\).*/\2/')"
@@ -27,10 +27,10 @@ get_rpmmacro() {
 }
 
 cd "$(dirname "$0")" || exit
+
 . ./mpkg_ver.sh
-hb_ver=$(get_hbver)
-hb_verstat=$(get_hbverstat)
-[ -n "${hb_verstat}" ] || hb_verstat='0'
+hb_verfull=$(hb_get_ver)
+hb_verstat=$(hb_get_ver_status)
 
 NEED_RPM='make gcc binutils cegcc-mingw32ce'
 
@@ -47,7 +47,7 @@ done
 
 TOINST_LST=''
 for i in ${NEED_RPM}; do
-  test_reqrpm "$i" || TOINST_LST="${TOINST_LST} $i"
+  test_reqrpm "${i}" || TOINST_LST="${TOINST_LST} ${i}"
 done
 
 OLDPWD="${PWD}"
@@ -79,10 +79,10 @@ if [ -z "${TOINST_LST}" ] || [ "${FORCE}" = 'yes' ]; then
 
     mv -f "${hb_filename}" "${RPMDIR}/SOURCES/"
     # Required for rpmbuild versions < 4.13.0
-    chown "${UID}" "${RPMDIR}/SOURCES/$(basename "${hb_filename}")"
+    chown "$(id -u)" "${RPMDIR}/SOURCES/$(basename "${hb_filename}")"
 
-    sed -e "s|^%define version .*$|%define version   ${hb_ver}|g" \
-        -e "s|^%define releasen .*$|%define releasen  ${hb_verstat}|g" \
+    sed -e "s|^%define version .*$|%define version ${hb_verfull}|g" \
+        -e "s|^%define verstat .*$|%define verstat ${hb_verstat}|g" \
         harbour-wce.spec.in > "${RPMDIR}/SPECS/harbour-wce.spec"
     cd "${RPMDIR}/SPECS" || exit
 

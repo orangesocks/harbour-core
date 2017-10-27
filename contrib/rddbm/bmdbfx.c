@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -60,7 +60,7 @@
 #include "rddsys.ch"
 
 
-/* now this function is RDD independent and can work with any RDD suporting
+/* now this function is RDD independent and can work with any RDD supporting
  * DBOI_SKIPWILD and DBOI_SKIPWILDBACK
  */
 HB_FUNC( BM_DBSEEKWILD )
@@ -804,8 +804,8 @@ HB_CALL_ON_STARTUP_BEGIN( _hb_bm_rdd_init_ )
 HB_CALL_ON_STARTUP_END( _hb_bm_rdd_init_ )
 
 #if defined( HB_PRAGMA_STARTUP )
-   #pragma startup _hb_bm_InitSymbols_
-   #pragma startup _hb_bm_rdd_init_
+#  pragma startup _hb_bm_InitSymbols_
+#  pragma startup _hb_bm_rdd_init_
 #elif defined( HB_DATASEG_STARTUP )
    #define HB_DATASEG_BODY    HB_DATASEG_FUNC( _hb_bm_InitSymbols_ ) \
                               HB_DATASEG_FUNC( _hb_bm_rdd_init_ )

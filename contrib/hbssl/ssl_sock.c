@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.txt.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA (or visit the web site https://www.gnu.org/).
+ * along with this program; see the file LICENSE.txt.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA (or visit https://www.gnu.org/licenses/).
  *
  * As a special exception, the Harbour Project gives permission for
  * additional uses of the text contained in its release of Harbour.
@@ -47,12 +47,11 @@
 /* this has to be declared before hbsocket.h is included */
 #define _HB_SOCKEX_IMPLEMENTATION_
 
-#include "hbapiitm.h"
-#include "hbapierr.h"
-#include "hbvm.h"
-#include "hbsocket.h"
-#include "hbdate.h"
 #include "hbssl.h"
+
+#include "hbapiitm.h"
+#include "hbvm.h"
+#include "hbdate.h"
 #include "hbinit.h"
 
 typedef struct _HB_SSLSTREAM
@@ -100,7 +99,9 @@ long hb_ssl_socketRead( PHB_SSLSTREAM pStream, HB_SOCKET sd,
    int iToRead = -1;
    HB_MAXUINT timer;
 
-   /* sd = SSL_get_rfd( pStream->ssl ); */
+   #if 0
+   sd = SSL_get_rfd( pStream->ssl );
+   #endif
 
 #if LONG_MAX > INT_MAX
    if( len > INT_MAX )
@@ -169,6 +170,7 @@ long hb_ssl_socketRead( PHB_SSLSTREAM pStream, HB_SOCKET sd,
                   hb_socketSetError( HB_SOCKET_ERR_TIMEOUT );
                   break;
                }
+               /* fallthrough */
             default:
                hb_socketSetError( HB_SSL_SOCK_ERROR_BASE + iError );
          }
@@ -186,7 +188,9 @@ long hb_ssl_socketWrite( PHB_SSLSTREAM pStream, HB_SOCKET sd,
    long lWritten = 0, lWr = 0;
    HB_MAXUINT timer;
 
-   /* sd = SSL_get_wfd( pStream->ssl ); */
+   #if 0
+   sd = SSL_get_wfd( pStream->ssl );
+   #endif
 
 #if LONG_MAX > INT_MAX
    if( len > INT_MAX )
@@ -248,6 +252,7 @@ long hb_ssl_socketWrite( PHB_SSLSTREAM pStream, HB_SOCKET sd,
                      hb_socketSetError( HB_SOCKET_ERR_TIMEOUT );
                   break;
                }
+               /* fallthrough */
             default:
                hb_socketSetError( HB_SSL_SOCK_ERROR_BASE + iError );
          }
