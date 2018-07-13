@@ -461,6 +461,11 @@ static void hb_dbfSetBlankRecord( DBFAREAP pArea, int iType )
             bNext = '\0';
             break;
 
+         case HB_FT_VARLENGTH:
+            if( pField->uiFlags & HB_FF_UNICODE )
+               uiLen = ( uiLen + 1 ) << 1;
+            /* fallthrough */
+
          default:
             bNext = '\0';
             break;
@@ -2173,7 +2178,8 @@ static HB_ERRCODE hb_dbfGetValue( DBFAREAP pArea, HB_USHORT uiIndex, PHB_ITEM pI
          if( ( pField->uiFlags & HB_FF_UNICODE ) != 0 )
          {
             nLen = HB_GET_LE_UINT16( &pArea->pRecord[ pArea->pFieldOffset[ uiIndex ] + ( nLen << 1 ) ] );
-            if( nLen == 0xFFFF )
+            if( nLen == 0xFFFF ||
+                nLen > ( HB_SIZE ) pField->uiLen ) /* protection against corrupted files */
                nLen = 0;
             hb_itemPutStrLenU16( pItem, HB_CDP_ENDIAN_LITTLE,
                                  ( const HB_WCHAR * ) &pArea->pRecord[ pArea->pFieldOffset[ uiIndex ] ],
@@ -3242,15 +3248,17 @@ static HB_ERRCODE hb_dbfCreate( DBFAREAP pArea, LPDBOPENINFO pCreateInfo )
       switch( pField->uiType )
       {
          case HB_FT_STRING:
-            uiLen = pField->uiLen;
             if( ( pField->uiFlags & HB_FF_UNICODE ) != 0 )
             {
                pThisField->bType = '\x1A';
-               uiLen <<= 1;
+               if( pField->uiLen > 32767 )
+                  pField->uiLen = 32767;
+               uiLen = ( pField->uiLen << 1 );
             }
             else
             {
                pThisField->bType = 'C';
+               uiLen = pField->uiLen;
             }
             pThisField->bLen = ( HB_BYTE ) uiLen;
             pThisField->bDec = ( HB_BYTE ) ( uiLen >> 8 );
@@ -3459,7 +3467,7 @@ static HB_ERRCODE hb_dbfCreate( DBFAREAP pArea, LPDBOPENINFO pCreateInfo )
       }
 
       if( pArea->pFieldOffset[ uiCount ] > pArea->uiRecordLen )
-         errSubCode = EDBF_DATATYPE;
+         errSubCode = EDBF_DATAWIDTH;
       if( errSubCode != 0 )
          break;
 
@@ -3887,7 +3895,7 @@ static HB_ERRCODE hb_dbfFieldInfo( DBFAREAP pArea, HB_USHORT uiIndex, HB_USHORT 
          pField = pArea->area.lpFields + uiIndex - 1;
          hb_itemPutL( pItem,
             ( pField->uiFlags & HB_FF_NULLABLE ) != 0 &&
-            hb_dbfGetNullFlag( pArea, pArea->pFieldBits[ uiIndex ].uiNullBit ) );
+            hb_dbfGetNullFlag( pArea, pArea->pFieldBits[ uiIndex - 1 ].uiNullBit ) );
          return HB_SUCCESS;
       case DBS_COUNTER:
          if( hb_dbfIsAutoIncField( pArea->area.lpFields + uiIndex - 1 ) != HB_AUTOINC_NONE )
@@ -4120,7 +4128,7 @@ static HB_ERRCODE hb_dbfNewArea( DBFAREAP pArea )
 static HB_ERRCODE hb_dbfOpen( DBFAREAP pArea, LPDBOPENINFO pOpenInfo )
 {
    HB_ERRCODE errCode;
-   HB_USHORT uiFields, uiCount, uiSkip, uiDecimals, uiFlags, uiFlagsMask;
+   HB_USHORT uiFields, uiCount, uiSkip, uiDecimals, uiLen, uiFlags, uiFlagsMask;
    HB_BOOL fRawBlob;
    PHB_ITEM pError, pItem;
    PHB_FNAME pFileName;
@@ -4607,13 +4615,19 @@ static HB_ERRCODE hb_dbfOpen( DBFAREAP pArea, LPDBOPENINFO pOpenInfo )
          case '\x1A':
             dbFieldInfo.uiType = HB_FT_STRING;
             dbFieldInfo.uiFlags |= HB_FF_UNICODE;
-            dbFieldInfo.uiLen = ( pField->bLen + pField->bDec * 256 ) >> 1;
+            uiLen = pField->bLen + pField->bDec * 256;
+            if( uiLen & 1 )
+               errCode = HB_FAILURE;
+            dbFieldInfo.uiLen = uiLen >> 1;
             break;
 
          case '\x1B':
             dbFieldInfo.uiType = HB_FT_VARLENGTH;
             dbFieldInfo.uiFlags |= HB_FF_UNICODE;
-            dbFieldInfo.uiLen = ( ( pField->bLen + pField->bDec * 256 ) >> 1 ) - 1;
+            uiLen = pField->bLen + pField->bDec * 256;
+            if( uiLen & 1 || uiLen < 2 )
+               errCode = HB_FAILURE;
+            dbFieldInfo.uiLen = ( uiLen >> 1 ) - 1;
             break;
 
          case '\x1C':

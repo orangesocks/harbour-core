@@ -19,7 +19,7 @@ CC_OUT := -o$(subst x,x, )
 CFLAGS += -I. -I$(HB_HOST_INC) -c
 
 CFLAGS += -D_FORTIFY_SOURCE=2
-ifeq ($(filter $(HB_COMPILER_VER),0209 0304 0400 0401 0402 0403 0404 0405 0406 0407 0408),)
+ifeq ($(filter $(__HB_COMPILER_VER),0209 0304 0400 0401 0402 0403 0404 0405 0406 0407 0408),)
    CFLAGS += -fstack-protector-strong
 endif
 
@@ -56,6 +56,7 @@ LIBPATHS := $(foreach dir,$(LIB_DIR) $(SYSLIBPATHS),-L$(dir))
 LDLIBS := $(foreach lib,$(HB_USER_LIBS) $(LIBS) $(SYSLIBS),-l$(lib))
 LDFLAGS += $(LIBPATHS)
 
+DY := $(CC)
 DLIBS := $(foreach lib,$(HB_USER_LIBS) $(SYSLIBS),-l$(lib))
 DFLAGS += $(LIBPATHS)
 

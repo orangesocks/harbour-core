@@ -1451,16 +1451,16 @@ msgid "options to be passed to resource compiler (before command-line options) (
 msgstr "opciones para pasar al compilador de recursos (antes de las opciones de línea de comandos) (solo Windows)"
 
 #, c-format
-msgid "override C compiler executable directory (gcc compiler families only)"
+msgid "override C compiler executable directory (gcc compiler family only)"
 msgstr "reemplaza directorio del ejecutable del compilador C (solo familias del compilador gcc)"
 
 #, c-format
-msgid "override C compiler executable prefix (gcc compiler families only)"
+msgid "override C compiler executable prefix (gcc compiler family only)"
 msgstr "reemplaza prefijo del ejecutable del compilador C (solo familias del compilador gcc)"
 
 #, c-format
-msgid "override C compiler executable suffix (gcc compiler families only)"
-msgstr "reemplaza sufijo del ejecutable del compilador C (solo familias del compilador gcc)"
+msgid "override C compiler executable suffix (gcc/clang compiler families only)"
+msgstr "reemplaza sufijo del ejecutable del compilador C (solo familias del compilador gcc/clang)"
 
 #, c-format
 msgid "override Harbour base add-ons directory"
@@ -1791,8 +1791,8 @@ msgid "target CPU. Where <cpu> can be any of: x86, x86_64, ia64, arm, mips, sh"
 msgstr "CPU destino. Donde <cpu> puede ser uno de: x86, x86_64, ia64, arm, mips, sh"
 
 #, c-format
-msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, symbian, linux, darwin, cygwin, minix, aix)"
-msgstr "plataforma destino es compatible *nix (bsd, hpux, sunos, beos, qnx, android, vxworks, symbian, linux, darwin, cygwin, minix, aix)"
+msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, linux, darwin, cygwin, minix, aix)"
+msgstr "plataforma destino es compatible *nix (bsd, hpux, sunos, beos, qnx, android, vxworks, linux, darwin, cygwin, minix, aix)"
 
 #, c-format
 msgid "target platform is Windows compatible (win, wce)"

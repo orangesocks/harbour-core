@@ -85,9 +85,7 @@
 #  include "hbwince.h"
 #endif
 
-#if ! defined( __LCC__ )
-#  include <wincon.h>
-#endif
+#include <wincon.h>
 
 #if defined( _MSC_VER ) || defined( __WATCOMC__ )
 #  include <conio.h>
@@ -1793,7 +1791,9 @@ static void hb_gt_win_Tone( PHB_GT pGT, double dFrequency, double dDuration )
 
    HB_SYMBOL_UNUSED( pGT );
 
+   hb_gt_BaseUnlock( pGT );
    hb_gt_winapi_tone( dFrequency, dDuration );
+   hb_gt_BaseLock( pGT );
 }
 
 /* *********************************************************************** */

@@ -27,8 +27,8 @@ msgid "Processing environment options: %1$s"
 msgstr "Processando opções do ambiente: %1$s"
 
 #, c-format
-msgid "Warning: Old style HB_COMPILER_VER value (%1$d) detected. Update it to: %2$s"
-msgstr "Atenção: detectado valor antigo para HB_COMPILER_VER (%1$d). Atualize para: %2$s"
+msgid "Warning: Old style __HB_COMPILER_VER value (%1$d) detected. Update it to: %2$s"
+msgstr "Atenção: detectado valor antigo para __HB_COMPILER_VER (%1$d). Atualize para: %2$s"
 
 #, c-format
 msgid "Autodetected platform: %1$s"
@@ -1623,16 +1623,16 @@ msgid "options to be passed to resource compiler (before command-line options) (
 msgstr "opções a serem passadas ​​para o compilador de recursos (antes da linha de comando) (somente Windows)"
 
 #, c-format
-msgid "override C compiler executable directory (gcc compiler families only)"
+msgid "override C compiler executable directory (gcc compiler family only)"
 msgstr "sobrepor o diretório de execução do compilador C (apenas para família de compilador gcc)"
 
 #, c-format
-msgid "override C compiler executable prefix (gcc compiler families only)"
+msgid "override C compiler executable prefix (gcc compiler family only)"
 msgstr "sobrepor o prefixo do executável do compilador C (apenas para família de compilador gcc)"
 
 #, c-format
-msgid "override C compiler executable suffix (gcc compiler families only)"
-msgstr "sobrepor o sufixo executável do compilador C (apenas para família de compilador gcc)"
+msgid "override C compiler executable suffix (gcc/clang compiler families only)"
+msgstr "sobrepor o sufixo executável do compilador C (apenas para família de compilador gcc/clang)"
 
 #, c-format
 msgid "override C compiler version autodetection (gcc and msvc compiler families only). Format: <15><00> = <major><minor>"
@@ -1975,8 +1975,8 @@ msgid "target CPU. Where <cpu> can be any of: x86, x86_64, ia64, arm, mips, sh"
 msgstr "CPU alvo. Onde <cpu> pode ser qualquer uma dessas: x86, x86_64, ia64, arm, mips, sh"
 
 #, c-format
-msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, symbian, linux, darwin, cygwin, minix, aix)"
-msgstr "plataforma alvo é compatível com *nix (bsd, hpux, sunos, beos, qnx, android, vxworks, symbian, linux, darwin, cygwin, minix, aix)"
+msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, linux, darwin, cygwin, minix, aix)"
+msgstr "plataforma alvo é compatível com *nix (bsd, hpux, sunos, beos, qnx, android, vxworks, linux, darwin, cygwin, minix, aix)"
 
 #, c-format
 msgid "target platform is Windows compatible (win, wce)"

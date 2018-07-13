@@ -190,11 +190,14 @@ METHOD Run( hConfig ) CLASS UHttpd
       "LogError"             => hb_noop(), ;
       "Trace"                => hb_noop(), ;
       "Idle"                 => hb_noop(), ;
+      "PostProcessRequest"   => hb_noop(), ;
+      "ErrorHandler"         => {| oErr, oServer | UErrorHandler( oErr, oServer ) }, ;
       "Mount"                => { => }, ;
       "PrivateKeyFilename"   => "", ;
       "CertificateFilename"  => "", ;
       "RequestFilter"        => hb_noop(), ;
-      "FirewallFilter"       => "0.0.0.0/0" }
+      "FirewallFilter"       => "0.0.0.0/0", ;
+      "SupportedMethods"     => { "GET", "POST" } }
 
    FOR EACH xValue IN hConfig
       IF ! xValue:__enumKey $ ::hConfig .OR. ! ValType( xValue ) == ValType( ::hConfig[ xValue:__enumKey ] )
@@ -549,7 +552,7 @@ STATIC FUNCTION ProcessConnection( oServer )
 
    LOCAL lRequestFilter := ! oServer:hConfig[ "RequestFilter" ] == hb_noop()
 
-   ErrorBlock( {| o | UErrorHandler( o, oServer ) } )
+   ErrorBlock( {| oErr | Eval( oServer:hConfig[ "ErrorHandler" ], oErr, oServer ) } )
 
    PRIVATE server, get, post, cookie, session, httpd
 
@@ -644,6 +647,7 @@ STATIC FUNCTION ProcessConnection( oServer )
          server := hb_HClone( aServer )
          get := { => }
          post := { => }
+         server[ "BODY_RAW" ] := NIL
          cookie := { => }
          session := NIL
 
@@ -678,7 +682,7 @@ STATIC FUNCTION ProcessConnection( oServer )
                UAddHeader( "Connection", "close" )
             ELSEIF ! SubStr( server[ "SERVER_PROTOCOL" ], 6 ) $ "1.0 1.1"
                USetStatusCode( 505 ) /* HTTP version not supported */
-            ELSEIF ! server[ "REQUEST_METHOD" ] $ "GET POST"
+            ELSEIF hb_AScan( oServer:hConfig[ "SupportedMethods" ], server[ "REQUEST_METHOD" ],,, .T. ) == 0
                USetStatusCode( 501 ) /* Not implemented */
             ELSE
                IF server[ "SERVER_PROTOCOL" ] == "HTTP/1.1"
@@ -694,7 +698,6 @@ STATIC FUNCTION ProcessConnection( oServer )
                   cBuf := Eval( oServer:hConfig[ "RequestFilter" ], oConnection, cRequest )
                ENDIF
                ProcessRequest( oServer )
-               dbCloseAll()
             ENDIF
          ENDIF /* request header ok */
 
@@ -753,7 +756,7 @@ STATIC PROCEDURE ProcessRequest( oServer )
 
    IF cPath != NIL
       bEval := hMount[ cMount ]
-      BEGIN SEQUENCE WITH {| oErr | UErrorHandler( oErr, oServer ) }
+      BEGIN SEQUENCE WITH {| oErr | Eval( oServer:hConfig[ "ErrorHandler" ], oErr, oServer ) }
          xRet := Eval( bEval, cPath )
          DO CASE
          CASE HB_ISSTRING( xRet )
@@ -765,7 +768,7 @@ STATIC PROCEDURE ProcessRequest( oServer )
          USetStatusCode( 500 )
          UAddHeader( "Connection", "close" )
       END SEQUENCE
-      dbCloseAll()
+      Eval( oServer:hConfig[ "PostProcessRequest" ] )
       // Unlock session
       IF t_aSessionData != NIL
          session := NIL
@@ -869,6 +872,8 @@ STATIC PROCEDURE ParseRequestBody( cRequest )
 
    LOCAL nI, cPart, cEncoding
 
+   server[ "BODY_RAW" ] := cRequest
+
    IF "CONTENT_TYPE" $ server .AND. ;
       hb_LeftEq( server[ "CONTENT_TYPE" ], "application/x-www-form-urlencoded" )
 
@@ -901,10 +906,18 @@ STATIC PROCEDURE ParseRequestBody( cRequest )
 STATIC FUNCTION MakeResponse( hConfig )
 
    LOCAL cRet, cStatus
+   LOCAL itm
+
+   IF "ADD_HEADERS" $ server
+      FOR EACH itm IN hb_defaultValue( server[ "ADD_HEADERS" ], { => } )
+         UAddHeader( itm:__enumKey, itm )
+      NEXT
+   ENDIF
 
    IF UGetHeader( "Content-Type" ) == NIL
       UAddHeader( "Content-Type", "text/html" )
    ENDIF
+
    UAddHeader( "Date", HttpDateFormat( hb_DateTime() ) )
 
    cRet := iif( server[ "SERVER_PROTOCOL" ] == "HTTP/1.0", "HTTP/1.0 ", "HTTP/1.1 " )
@@ -994,7 +1007,8 @@ STATIC FUNCTION HttpDateUnformat( cDate, /* @ */ tDate )
 
 STATIC FUNCTION UErrorHandler( oErr, oServer )
 
-   Eval( oServer:hConfig[ "Trace" ], "UErrorHandler" )
+   Eval( oServer:hConfig[ "Trace" ], "UErrorHandler()" )
+
    DO CASE
    CASE oErr:genCode == EG_ZERODIV
       RETURN 0
@@ -1127,7 +1141,7 @@ STATIC FUNCTION ErrDescCode( nCode )
 
 STATIC FUNCTION cvt2str( xI, lLong )
 
-   LOCAL cValtype, cI, xJ
+   LOCAL cValtype
 
    hb_default( @lLong, .F. )
 
@@ -1148,26 +1162,7 @@ STATIC FUNCTION cvt2str( xI, lLong )
    CASE "H"
       RETURN "[H" + hb_ntos( Len( xI ) ) + "]"
    CASE "O"
-      cI := ""
-      IF __objHasMsg( xI, "ID" )
-         xJ := xI:ID
-         IF ! HB_ISOBJECT( xJ )
-            cI += ",ID=" + cvt2str( xJ )
-         ENDIF
-      ENDIF
-      IF __objHasMsg( xI, "nID" )
-         xJ := xI:nID
-         IF ! HB_ISOBJECT( xJ )
-            cI += ",NID=" + cvt2str( xJ )
-         ENDIF
-      ENDIF
-      IF __objHasMsg( xI, "xValue" )
-         xJ := xI:xValue
-         IF ! HB_ISOBJECT( xJ )
-            cI += ",XVALUE=" + cvt2str( xJ )
-         ENDIF
-      ENDIF
-      RETURN "[O:" + xI:ClassName() + cI + "]"
+      RETURN "[O:" + xI:ClassName() + "]"
    CASE "D"
       RETURN iif( lLong, "[D]:", "" ) + hb_DToC( xI, "yyyy-mm-dd" )
    CASE "L"
@@ -1503,6 +1498,8 @@ PROCEDURE UProcInfo()
    AEval( ASort( hb_HKeys( server ) ), {| X | UWrite( '<tr><td>' + X + '</td><td>' + UHtmlEncode( hb_CStr( server[ X ] ) ) + '</td></tr>' ) } )
    UWrite( '</table>' )
 
+   UWrite( '<h3>' + server[ "REQUEST_METHOD" ] + '</h3>' )
+
    IF ! Empty( get )
       UWrite( '<h3>get</h3>' )
       UWrite( '<table border=1 cellspacing=0>' )
@@ -1613,7 +1610,7 @@ STATIC FUNCTION compile_file( cFileName, bTrace )
 
    LOCAL nPos, cTpl, aCode := {}
 
-   hb_default( @cFileName, MEMVAR->server[ "SCRIPT_NAME" ] )
+   hb_default( @cFileName, server[ "SCRIPT_NAME" ] )
 
    cFileName := UOsFileName( hb_DirBase() + "tpl/" + cFileName + ".html" )
    IF hb_vfExists( cFileName )
@@ -1636,32 +1633,35 @@ STATIC FUNCTION compile_buffer( cTpl, nStart, aCode )
 
    LOCAL nI, nS, nE, cTag, cParam
 
-   DO WHILE ( nS := hb_At( "{{", cTpl, nStart ) ) > 0
+   LOCAL cOpen := "{{", nOpen := Len( cOpen )
+   LOCAL cClose := "}}", nClose := Len( cClose )
+
+   DO WHILE ( nS := hb_At( cOpen, cTpl, nStart ) ) > 0
       IF nS > nStart
          AAdd( aCode, { "txt", SubStr( cTpl, nStart, nS - nStart ) } )
       ENDIF
-      IF ( nE := hb_At( "}}", cTpl, nS ) ) > 0
+      IF ( nE := hb_At( cClose, cTpl, nS ) ) > 0
          IF ( nI := hb_At( " ", cTpl, nS, nE ) ) == 0
             nI := nE
          ENDIF
-         cTag := SubStr( cTpl, nS + 2, nI - nS - 2 )
+         cTag := SubStr( cTpl, nS + nOpen, nI - nS - nOpen )
          cParam := SubStr( cTpl, nI + 1, nE - nI - 1 )
 
          SWITCH cTag
          CASE "="
          CASE ":"
             AAdd( aCode, { cTag, cParam } )
-            nStart := nE + 2
+            nStart := nE + nClose
             EXIT
 
          CASE "if"
             AAdd( aCode, { "if", cParam, {}, {} } )
-            nI := compile_buffer( cTpl, nE + 2, ATail( aCode )[ 3 ] )
-            IF SubStr( cTpl, nI, 8 ) == "{{else}}"
-               nI := compile_buffer( cTpl, nI + 8, ATail( aCode )[ 4 ] )
+            nI := compile_buffer( cTpl, nE + nClose, ATail( aCode )[ 3 ] )
+            IF SubStr( cTpl, nI, Len( cOpen + "else" + cClose ) ) == cOpen + "else" + cClose
+               nI := compile_buffer( cTpl, nI + Len( cOpen + "else" + cClose ), ATail( aCode )[ 4 ] )
             ENDIF
-            IF SubStr( cTpl, nI, 9 ) == "{{endif}}"
-               nStart := nI + 9
+            IF SubStr( cTpl, nI, nOpen + Len( "endif" ) + nClose ) == cOpen + "endif" + cClose
+               nStart := nI + nOpen + Len( "endif" ) + nClose
             ELSE
                Break( nI )
             ENDIF
@@ -1669,9 +1669,9 @@ STATIC FUNCTION compile_buffer( cTpl, nStart, aCode )
 
          CASE "loop"
             AAdd( aCode, { "loop", cParam, {} } )
-            nI := compile_buffer( cTpl, nE + 2, ATail( aCode )[ 3 ] )
-            IF SubStr( cTpl, nI, 11 ) == "{{endloop}}"
-               nStart := nI + 11
+            nI := compile_buffer( cTpl, nE + nClose, ATail( aCode )[ 3 ] )
+            IF SubStr( cTpl, nI, nOpen + Len( "endloop" ) + nClose ) == cOpen + "endloop" + cClose
+               nStart := nI + nOpen + Len( "endloop" ) + nClose
             ELSE
                Break( nI )
             ENDIF
@@ -1679,12 +1679,12 @@ STATIC FUNCTION compile_buffer( cTpl, nStart, aCode )
 
          CASE "extend"
             AAdd( aCode, { "extend", cParam } )
-            nStart := nE + 2
+            nStart := nE + nClose
             EXIT
 
          CASE "include"
             AAdd( aCode, { "include", cParam } )
-            nStart := nE + 2
+            nStart := nE + nClose
             EXIT
 
          OTHERWISE

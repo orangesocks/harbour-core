@@ -46,6 +46,7 @@
 
 #include "hbwapi.h"
 #include "hbapierr.h"
+#include "hbapiitm.h"
 
 HB_FUNC( WAPI_GETCOMMANDLINE )
 {
@@ -422,6 +423,44 @@ HB_FUNC( WAPI_QUERYPERFORMANCEFREQUENCY )
 
    hb_stornint( result ? HBWAPI_GET_LARGEUINT( frequency ) : 0, 1 );
    hb_retl( result != 0 );
+}
+
+#define TARGET_PATH_BUFFER_SIZE     4096
+HB_FUNC( WAPI_QUERYDOSDEVICE )
+{
+#if ! defined( HB_OS_WIN_CE )
+   void * hDeviceName;
+   LPTSTR lpTargetPath = ( LPTSTR ) hb_xgrab( TARGET_PATH_BUFFER_SIZE * sizeof( TCHAR ) );
+   DWORD dwResult;
+
+   dwResult = QueryDosDevice( HB_PARSTR( 1, &hDeviceName, NULL ), lpTargetPath, TARGET_PATH_BUFFER_SIZE );
+   hbwapi_SetLastError( GetLastError() );
+   if( dwResult )
+   {
+      PHB_ITEM pArray = hb_itemArrayNew( 0 ), pItem = NULL;
+      DWORD dwPos, dwStart;
+
+      dwPos = dwStart = 0;
+      while( lpTargetPath[ dwPos ] )
+      {
+         if( ! lpTargetPath[ ++dwPos ] )
+         {
+            pItem = HB_ITEMPUTSTRLEN( pItem, lpTargetPath + dwStart, dwPos - dwStart - 1 );
+            hb_arrayAdd( pArray, pItem );
+            dwStart = ++dwPos;
+         }
+      }
+      hb_itemRelease( pItem );
+      hb_itemReturnRelease( pArray );
+   }
+   else
+      hb_reta( 0 );
+
+   hb_strfree( hDeviceName );
+   hb_xfree( lpTargetPath );
+#else
+   hb_reta( 0 );
+#endif
 }
 
 /* wapi_GetVolumeInformation( <cRootPath>, @<cVolumeName>, @<nSerial>,

@@ -47,8 +47,7 @@
 #include "hbapi.h"
 #include "hbsocket.h"
 
-#if ( defined( HB_OS_DOS ) && ! defined( HB_HAS_WATT ) ) || \
-   defined( HB_OS_SYMBIAN ) || defined( __TINYC__ )
+#if defined( HB_OS_DOS ) && ! defined( HB_HAS_WATT )
 #  if ! defined( HB_SOCKET_OFF )
 #     define HB_SOCKET_OFF
 #  endif
@@ -174,7 +173,7 @@
 /* #     define HB_HAS_INET6 */
 #  elif defined( __MINGW32__ )
 #     define HB_HAS_SOCKADDR_STORAGE
-#  elif defined( __POCC__ ) && ! defined( __XCC__ )
+#  elif defined( __POCC__ )
 #     define HB_HAS_SOCKADDR_STORAGE
 #  elif defined( _MSC_VER )
 #     if _MSC_VER >= 1800 && ! defined( HB_WINSOCK_USE_OLDFUNC )
@@ -223,9 +222,7 @@
 #if defined( HB_OS_WIN )
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#  if ! defined( __DMC__ )
-#     include <iphlpapi.h>
-#  endif
+#  include <iphlpapi.h>
 #else
 #  include <errno.h>
 #  if defined( HB_OS_DOS )
@@ -2787,7 +2784,7 @@ int hb_socketSetBlockingIO( HB_SOCKET sd, HB_BOOL fBlocking )
    if( ret != -1 )
    {
       HB_BOOL fBlocked;
-      long flags;
+      int flags;
       fBlocked = ( ret & O_NONBLOCK ) == 0;
       if( fBlocking ? ! fBlocked : fBlocked )
       {
@@ -4005,7 +4002,7 @@ PHB_ITEM hb_socketGetIFaces( int af, HB_BOOL fNoAliases )
       hb_xfree( buf );
       hb_socketClose( sd );
    }
-#elif defined( HB_OS_WIN ) && ! defined( __DMC__ )
+#elif defined( HB_OS_WIN )
    HB_SOCKET sd;
 
    /* TODO: add support for IP6 */

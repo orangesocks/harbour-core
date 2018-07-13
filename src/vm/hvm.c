@@ -12424,6 +12424,27 @@ HB_FUNC( __VMITEMID )
    }
 }
 
+HB_FUNC( __VMITEMREFS )
+{
+   HB_STACK_TLS_PRELOAD
+
+   PHB_ITEM pItem = hb_param( 1, HB_IT_ANY );
+
+   if( pItem )
+   {
+      if( HB_IS_ARRAY( pItem ) )
+         hb_retnint( hb_arrayRefs( pItem ) );
+      else if( HB_IS_HASH( pItem ) )
+         hb_retnint( hb_hashRefs( pItem ) );
+      else if( HB_IS_BLOCK( pItem ) )
+         hb_retnint( hb_codeblockRefs( pItem ) );
+      else if( HB_IS_POINTER( pItem ) )
+         hb_retnint( hb_gcRefCount( pItem->item.asPointer.value ) );
+      else if( HB_IS_STRING( pItem ) )
+         hb_retnint( hb_xRefCount( pItem->item.asString.value ) );
+   }
+}
+
 HB_FUNC( __VMMODULESVERIFY )
 {
    HB_STACK_TLS_PRELOAD
@@ -12531,11 +12552,11 @@ HB_LANG_REQUEST( HB_LANG_DEFAULT )
 #undef HB_FORCE_LINK_MAIN
 
 #if ! defined( HB_DYNLIB ) && defined( HB_OS_WIN ) && \
-   ( defined( __DMC__ ) || defined( __WATCOMC__ ) || defined( __MINGW32__ ) )
+   ( defined( __WATCOMC__ ) || defined( __MINGW32__ ) )
 
 #  define HB_FORCE_LINK_MAIN  hb_forceLinkMainWin
 
-#elif ( defined( __WATCOMC__ ) || defined( __TINYC__ ) ) && \
+#elif defined( __WATCOMC__ ) && \
    ( defined( HB_OS_LINUX ) || defined( HB_OS_OS2 ) || defined( HB_OS_WIN ) )
 
 #  define HB_FORCE_LINK_MAIN  hb_forceLinkMainStd

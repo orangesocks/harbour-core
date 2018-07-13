@@ -38,7 +38,7 @@ msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:2019
 #, c-format
-msgid "Warning: Old style HB_COMPILER_VER value (%1$d) detected. Update it to: %2$s"
+msgid "Warning: Old style __HB_COMPILER_VER value (%1$d) detected. Update it to: %2$s"
 msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:2056
@@ -2118,17 +2118,17 @@ msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17618
 #, c-format
-msgid "override C compiler executable directory (gcc compiler families only)"
+msgid "override C compiler executable directory (gcc compiler family only)"
 msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17618
 #, c-format
-msgid "override C compiler executable prefix (gcc compiler families only)"
+msgid "override C compiler executable prefix (gcc compiler family only)"
 msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17618
 #, c-format
-msgid "override C compiler executable suffix (gcc compiler families only)"
+msgid "override C compiler executable suffix (gcc/clang compiler families only)"
 msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17618
@@ -2563,7 +2563,7 @@ msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17738
 #, c-format
-msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, symbian, linux, darwin, cygwin, minix, aix)"
+msgid "target platform is *nix compatible (bsd, hpux, sunos, beos, qnx, android, vxworks, linux, darwin, cygwin, minix, aix)"
 msgstr ""
 
 #: utils/hbmk2/hbmk2.prg:17738

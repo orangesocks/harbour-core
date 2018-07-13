@@ -1,12 +1,13 @@
 # Welcome to Harbour
 [![License](https://img.shields.io/badge/license-GPLv2%20%2B%20Library%20Exception-blue.svg)](LICENSE.txt "License")
-[![Download](https://img.shields.io/badge/download-snapshot_binary_(3.4)-ff4500.svg)](https://github.com/vszakats/harbour-core/releases "Download snapshot release")
+[![Download](https://img.shields.io/badge/download-snapshot_binary_(3.4)-blue.svg)](https://github.com/vszakats/harbour-core/releases "Download snapshot release")
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-[![PayPal Donate](https://img.shields.io/badge/PayPal-Donate_Now-ff4500.svg?colorA=00457c)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BPSZQYKXMQJYG "Donate Now")
+[![Donate](https://img.shields.io/badge/Donate-Now-ff4500.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BPSZQYKXMQJYG "Donate Now")
 <br>
 [![Build Status](https://api.travis-ci.org/vszakats/harbour-core.svg?branch=master)](https://travis-ci.org/vszakats/harbour-core)
-[![Build Status](https://ci.appveyor.com/api/projects/status/1kx6w3y6qasymah3/branch/master?svg=true)](https://ci.appveyor.com/project/vsz/harbour-core/branch/master)
+[![Build Status](https://ci.appveyor.com/api/projects/status/1kx6w3y6qasymah3/branch/master?svg=true)](https://ci.appveyor.com/project/vszakats/harbour-core/branch/master)
 [![Coverity Status](https://scan.coverity.com/projects/3208/badge.svg)](https://scan.coverity.com/projects/3208)
+<br>
 [![Average time to resolve an Issue](https://isitmaintained.com/badge/resolution/vszakats/harbour-core.svg)](https://isitmaintained.com/project/vszakats/harbour-core "Average time to resolve an Issue")
 [![Percentage of Issues still open](https://isitmaintained.com/badge/open/vszakats/harbour-core.svg)](https://isitmaintained.com/project/vszakats/harbour-core "Percentage of Issues still open")
 
@@ -40,9 +41,7 @@ and a collection of libraries and bindings for popular APIs.
 
   You can donate to fund further maintenance of this fork:
 
-  [![PayPal](https://www.paypalobjects.com/webstatic/i/logo/rebrand/ppcom.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BPSZQYKXMQJYG)
-
-  Thanks to all who did!
+  [Donate Now!](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BPSZQYKXMQJYG)
 
 # Maintainer contacts
 
@@ -123,14 +122,17 @@ Platform specific prerequisites:
 
 1. Windows 7 or upper system is recommended to *build* Harbour. (64-bit
    edition is also recommended to make things simpler)
-2. Make sure to have your C compiler of choice installed in `PATH`. Refer to
+2. Consider using the binary release. On Windows, this is easier and
+   recommended for most use-cases. You can still rebuild specific contribs
+   this way.
+3. Make sure to have your C compiler of choice installed in `PATH`. Refer to
    your C compiler installation and setup instructions for details. Make sure
    no tools in your `PATH` belonging to other C compilers are interfering with
    your setup. Also avoid to keep multiple copies of the same compiler, or
    different versions of the same compiler in `PATH` at the same time. For the
    list of supported compilers,
    look up [Supported Platforms and C Compilers](#supported-platforms-and-c-compilers).
-3. A native build of GNU Make is required. It is usually named
+4. A native build of GNU Make is required. It is usually named
    `mingw32-make.exe`. It's distributed in MSYS2, mingw-w64 packages. You can
    find download links [here](#external-links).
    Unpack it to your `PATH` or Harbour source root directory, and run it as
@@ -520,8 +522,8 @@ settings are case-sensitive.
 
    - `HB_CCSUFFIX=[<suffix>]`
 
-     Used with gcc compiler family to specify compiler/linker tool name
-     suffix &mdash; usually version number.
+     Used with gcc/clang compiler families to specify compiler/linker tool
+     name suffix &mdash; usually version number.
 
    - `HB_INSTALL_PREFIX`
 
@@ -546,6 +548,7 @@ settings are case-sensitive.
 
    - `HB_USER_PRGFLAGS`        User Harbour compiler options
    - `HB_USER_CFLAGS`          User C compiler options
+   - `HB_USER_DCFLAGS`         User C compiler options (for dynamic libraries only)
    - `HB_USER_RESFLAGS`        User resource compiler options (on win, wce, os2)
    - `HB_USER_LDFLAGS`         User linker options for executables
    - `HB_USER_AFLAGS`          User linker options for libraries
@@ -1062,7 +1065,6 @@ Press `<Alt+D>` in the app.
 * minix    - Minix 3 (experimental, tested on 3.2.1; earlier releases will not work)
 * cygwin   - Cygwin (experimental)
 * beos     - BeOS / Haiku (deprecated)
-* symbian  - Symbian OS (deprecated)
 
 ## You can override C compiler auto-detection with these `HB_COMPILER` values:
 
@@ -1093,8 +1095,8 @@ Press `<Alt+D>` in the app.
 * clang64  - LLVM/Clang x86-64 (5.0.0 and above)
 * mingw    - MinGW GNU C (4.4.0 and above, 6.x or newer recommended)
 * mingw64  - MinGW GNU C x86-64
-* msvc     - Microsoft Visual C++ (2010 and above)
-* msvc64   - Microsoft Visual C++ x86-64 (2010 and above)
+* msvc     - Microsoft Visual C++ (2013 and above)
+* msvc64   - Microsoft Visual C++ x86-64 (2013 and above)
 
 ### win (experimental)
 * clang-cl - LLVM/Clang-cl
@@ -1108,7 +1110,6 @@ Press `<Alt+D>` in the app.
 * bcc64    - Embarcadero C++ 6.5 and above
 * pocc     - Pelles C 4.5 and above
 * pocc64   - Pelles C x86-64 5.0 and above
-* xcc      - Pelles C for xHarbour
 * iccia64  - Intel(R) C/C++ IA-64 (Itanium)
 * msvcia64 - Microsoft Visual C++ IA-64 (Itanium)
 
@@ -1152,9 +1153,6 @@ Press `<Alt+D>` in the app.
 * gcc      - GNU C
 
 ### beos (deprecated)
-* gcc      - GNU C
-
-### symbian (deprecated)
 * gcc      - GNU C
 
 
@@ -1208,8 +1206,6 @@ Press `<Alt+D>` in the app.
  win      | win/pocc          | x86    (deprecated)
  win      | win/pocc64        | x86-64 (deprecated)
  win      | wce/poccarm       | arm    (deprecated)
- win      | win/xcc           | x86    (deprecated)
- win      | symbian/gcc       | arm    (deprecated)
  os2      | os2/gcc           | x86
  os2      | os2/watcom        | x86
  os2      | win/watcom        | x86
@@ -1358,9 +1354,9 @@ Supported shells per host platforms:
      * deb (Ubuntu): <https://packages.ubuntu.com/>
      * rpm (Fedora): <https://apps.fedoraproject.org/packages/>
      * pacman (Arch Linux): <https://www.archlinux.org/packages/>
-     * FreeBSD: <https://www.freebsd.org/ports/>
-     * Homebrew: <http://formulae.brew.sh/>
-     * MSYS2: <https://github.com/Alexpux/MINGW-packages>
+     * pkgng, ports (FreeBSD): <https://www.freebsd.org/ports/> <https://www.freshports.org/>
+     * homebrew (macOS): <http://formulae.brew.sh/>
+     * msys2 (Windows): <https://github.com/Alexpux/MINGW-packages>
 
 * Documentation:
 
@@ -1431,7 +1427,7 @@ Supported shells per host platforms:
    tools *tested most*, *focused on*, *used and deployed* by the
    maintainer/developer of this fork. While this is strongly believed to result
    in the best Harbour experience for most situations, it's ultimately
-   a subjective decision. If you don't like it, use what fits you best.
+   a subjective decision. If you don't like it, use what fits your case best.
 
 ---
 This document Copyright &copy;&nbsp;2009&ndash;present [Viktor Szakats](https://vszakats.net/harbour)<br>

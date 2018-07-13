@@ -8,13 +8,13 @@
 -w3 -es2
 
 -depurlbase=openssl:https://www.openssl.org/
--depurlbase=openssl:https://github.com/vszakats/harbour-deps{win&(allmingw|allclang)}
+-depurlbase=openssl:https://github.com/vszakats/curl-for-win{win&(allmingw|allclang)}
 -depurlbase=openssl:https://www.openssl.org/community/binaries.html{win&!(allmingw|allclang)}
 -deppkgname=openssl:libssl-dev{deb}
 -deppkgname=openssl:openssl-devel{rpm}
 -deppkgname=openssl:openssl@1.1{homebrew}
--deppkgname=openssl:openssl-devel{pkg}
--deppkgname=openssl:openssl{homebrew|pkg}
+-deppkgname=openssl:openssl-devel{pkgng}
+-deppkgname=openssl:openssl{homebrew|pkgng}
 -deppkgname=openssl:libressl{homebrew}
 -deppkgname=openssl:openssl{pacman}
 -deppkgname=openssl:mingw-w64-i686-openssl{msys2&x86}
@@ -40,10 +40,10 @@
 -depimplibs=openssl:../lib/libssl.dll.a:ssl{allwinar}
 -depfinish=openssl
 
--instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libcrypto-1_1.dll{hbdyn&(mingw|clang)}
--instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libssl-1_1.dll{hbdyn&(mingw|clang)}
--instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libcrypto-1_1-x64.dll{hbdyn&(mingw64|clang64)}
--instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libssl-1_1-x64.dll{hbdyn&(mingw64|clang64)}
+-instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libcrypto-*.dll{hbdyn&(mingw|clang)}
+-instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libssl-*.dll{hbdyn&(mingw|clang)}
+-instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libcrypto-*-x64.dll{hbdyn&(mingw64|clang64)}
+-instfile=depimplibsrc:${HBMK_DIR_OPENSSL}/../libssl-*-x64.dll{hbdyn&(mingw64|clang64)}
 
 -iflag={bcc}-a
 

@@ -433,12 +433,14 @@
 #define HB_CURL_SSLVERSION_MAX_TLSv1_3        hb_bitShift( HB_CURL_SSLVERSION_TLSv1_3, 16 )
 
 /* HB_CURLOPT_SSH_AUTH_TYPES option */
-#define HB_CURL_CURLSSH_AUTH_ANY              hb_bitNot( 0 )      /* all types supported by the server */
-#define HB_CURL_CURLSSH_AUTH_NONE             0                   /* none allowed, silly but complete */
-#define HB_CURL_CURLSSH_AUTH_PUBLICKEY        1                   /* public/private key files */
-#define HB_CURL_CURLSSH_AUTH_PASSWORD         2                   /* password */
-#define HB_CURL_CURLSSH_AUTH_HOST             4                   /* host key files */
-#define HB_CURL_CURLSSH_AUTH_KEYBOARD         8                   /* keyboard interactive */
+#define HB_CURL_CURLSSH_AUTH_ANY              hb_bitNot( 0 )       /* all types supported by the server */
+#define HB_CURL_CURLSSH_AUTH_NONE             0                    /* none allowed, silly but complete */
+#define HB_CURL_CURLSSH_AUTH_PUBLICKEY        hb_bitShift( 1, 0 )  /* public/private key files */
+#define HB_CURL_CURLSSH_AUTH_PASSWORD         hb_bitShift( 1, 1 )  /* password */
+#define HB_CURL_CURLSSH_AUTH_HOST             hb_bitShift( 1, 2 )  /* host key files */
+#define HB_CURL_CURLSSH_AUTH_KEYBOARD         hb_bitShift( 1, 3 )  /* keyboard interactive */
+#define HB_CURL_CURLSSH_AUTH_AGENT            hb_bitShift( 1, 4 )  /* agent (ssh-agent, pageant...) */
+#define HB_CURL_CURLSSH_AUTH_GSSAPI           hb_bitShift( 1, 5 )  /* gssapi (kerberos, ...) */
 #define HB_CURL_CURLSSH_AUTH_DEFAULT          HB_CURLSSH_AUTH_ANY
 
 /* CURLOPT_*PROTOCOLS options */
@@ -647,7 +649,9 @@
 #define HB_CURLVERINFO_LIBIDN                 11
 #define HB_CURLVERINFO_ICONV_VER_NUM          12
 #define HB_CURLVERINFO_LIBSSH_VERSION         13
-#define HB_CURLVERINFO_LEN                    13
+#define HB_CURLVERINFO_BROTLI_VER_NUM         14
+#define HB_CURLVERINFO_BROTLI_VERSION         15
+#define HB_CURLVERINFO_LEN                    15
 
 /* HB_CURLVERINFO_FEATURES bit positions. */
 #define HB_CURL_VERSION_IPV6                  hb_bitShift( 1, 0 )   /* IPv6-enabled */
@@ -673,6 +677,7 @@
 #define HB_CURL_VERSION_PSL                   hb_bitShift( 1, 20 )  /* Mozilla's Public Suffix List, used for cookie domain verification */
 #define HB_CURL_VERSION_HTTPS_PROXY           hb_bitShift( 1, 21 )  /* HTTPS-proxy support built-in */
 #define HB_CURL_VERSION_MULTI_SSL             hb_bitShift( 1, 22 )  /* Multiple SSL backends available */
+#define HB_CURL_VERSION_BROTLI                hb_bitShift( 1, 23 )  /* Brotli features are present */
 
 /* HB_CURLOPT_HTTPPOST_FORM type. */
 #define HB_CURLOPT_HTTPPOST_FORM_CONTENT      1
