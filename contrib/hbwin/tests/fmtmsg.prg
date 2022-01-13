@@ -1,4 +1,4 @@
-/* Copyright 2013 Viktor Szakats (vszakats.net/harbour) */
+/* Copyright 2013 Viktor Szakats */
 
 #require "hbwin"
 

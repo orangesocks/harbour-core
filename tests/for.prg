@@ -1,4 +1,4 @@
-/* Donated to the public domain by Viktor Szakats (vszakats.net/harbour) */
+/* Donated to the public domain by Viktor Szakats */
 
 /* Testing Harbour For Next loops for Clipper compatibility */
 

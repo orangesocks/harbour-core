@@ -1,7 +1,7 @@
 /*
  * National Collation Support Module (HUCWI)
  *
- * Copyright 2016 Viktor Szakats (vszakats.net/harbour)
+ * Copyright 2016 Viktor Szakats
  */
 
 #define HB_CP_ID        HUCWI

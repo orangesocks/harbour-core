@@ -8,7 +8,7 @@ title: "Forks"
 
 # Harbour Forks
 
-## [Harbour]({% if site.fork %}{{ site.baseurl }}{% else %}{{ forkurl }}{% endif %}) by [vszakats](https://github.com/vszakats) (version 3.4)
+## [Harbour version 3.4]({% if site.fork %}{{ site.baseurl }}{% else %}{{ forkurl }}{% endif %})
 
 Forked in April of 2013 in an attempt to focus on a narrower set of platforms
 and contrib libraries while also freeing up resources by distancing from
@@ -18,15 +18,15 @@ goal to adapt all mainline (non-fork) updates with minimal delay. To ease
 maintenance, this fork has the policy to disable all deprecated components by
 default (they can be enabled though, with no promises). Other goals are
 compatibility with mainline core, continuous maintenance, build automation and
-security ([`hbcrypto`]({% if site.fork %}{{ site.baseurl }}{% else %}{{ forkurl }}{% endif %}/contribs#hbcrypto)
-contrib and [curl/OpenSSL builds](https://github.com/vszakats/curl-for-win)).
+security ([`hbcrypto`]({% if site.fork %}{{ site.baseurl }}{% else %}{{ forkurl }}{% endif %}/contribs{{ site.ilink_suffix }}#hbcrypto)
+contrib and [curl builds](https://github.com/curl/curl-for-win)).
 It also features a large number of fixes and cleanups, many of which are
 eventually retrofitted to mainline.
 
 This fork accepts
 [donations]({% if site.fork %}{{ site.baseurl }}{% else %}{{ forkurl }}{% endif %}/#this-fork).
 
-* [Repository](https://github.com/vszakats/harbour-core)
+* [Repository](https://github.com/vszakats/hb)
 
 This fork is largely compatible with mainline, with the notable exception
 for deprecated parts, which are disabled by default.
@@ -50,7 +50,7 @@ focus on the Windows platform along with commercial offerings.
 * [Community](https://groups.google.com/forum/#!forum/comp.lang.xharbour)
 
 Technical details on how this fork differs from the other variations,
-[here](https://raw.githubusercontent.com/{{ site.repo_slug }}/master/doc/xhb-diff.txt).
+[here](https://raw.githubusercontent.com/{{ site.repo_slug }}/{{ site.repo_branch }}/doc/xhb-diff.txt).
 
 ## MiniGUI forks
 
@@ -61,7 +61,7 @@ components. There are a number of semi-connected forks found on the internet:
 
 * [HMG Extended](https://sourceforge.net/projects/hmgs-minigui/)
 * [HMG](https://sourceforge.net/projects/hmg/) / <https://sites.google.com/site/hmgweb/>
-* [HMG3](https://sourceforge.net/projects/harbourminigui/) / hmgforum.com
+* [HMG3](https://sourceforge.net/projects/harbourminigui/) / <https://hmgforum.com/>
 
 Each use altered Harbour sources and may use non-standard toolchain elements
 (e.g. `hbmk2.bat` wrapper for standard `hbmk2.exe`). They feature certain
@@ -69,6 +69,11 @@ libraries with names overlapping with Harbour contribs, but with slightly
 incompatible or completely different functionality. Some distros come in
 binary form only, making it difficult/impossible to find out what was the exact
 source code / patches they were built from. In practice it means that general
-Harbour support forums can't help with issues.
+Harbour support forums cannot help with issues.
+
+* [OOHG](https://oohg.github.io/)
+
+Another MiniGUI fork that implements a full OOP model without altered Harbour
+sources nor overlapping libraries.
 
 </div>
